@@ -15,6 +15,7 @@ Module.register("MMM-MBTA", {
         showETATime: true,
         fade: true,
         fadePoint: 0.25, // Start on 1/4th of the list.
+        showFullName: false,
     },
     
     getStyles: function() {
@@ -141,7 +142,11 @@ Module.register("MMM-MBTA", {
             
             // Description
             var descCell = document.createElement("td");
-            descCell.innerHTML = this.stationData[i].tripSign;
+            if (!this.config.showFullName) {
+                descCell.innerHTML = this.stationData[i].tripSign;
+            } else {
+                descCell.innerHTML = this.stationData[i].tripName;
+            }
             descCell.className = "align-left bright";
             row.appendChild(descCell);
     
@@ -281,6 +286,7 @@ Module.register("MMM-MBTA", {
         return url;
     },
     
+    // updateDomAFter: immediatelly call updateDom() if true
     processData: function(data, updateDomAfter) {
         /* Nice little list of everything we have
         Each element in this array is an entry on our displayed table.
