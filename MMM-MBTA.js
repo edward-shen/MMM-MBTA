@@ -13,6 +13,8 @@ Module.register("MMM-MBTA", {
         maxTime: 0,
         showArrivalTime: false,
         showETATime: true,
+        fade: true,
+        fadePoint: 0.25, // Start on 1/4th of the list.
     },
     
     getStyles: function() {
@@ -183,6 +185,19 @@ Module.register("MMM-MBTA", {
                     arrTimeCell.innerHTML = moment(parseInt(this.stationData[i].preDt) * 1000).format("h:mm");
                 }
                 row.appendChild(arrTimeCell);
+            }
+            
+            // Stolen from default modules to ensure style is identical. Thanks MichMich <3
+            if (this.config.fade && this.config.fadePoint < 1) {
+                if (this.config.fadePoint < 0) {
+                    this.config.fadePoint = 0;
+                }
+                var startingPoint = this.stationData.length * this.config.fadePoint;
+                var steps = this.stationData.length - startingPoint;
+                if (i >= startingPoint) {
+                    var currentStep = i - startingPoint;
+                    row.style.opacity = 1 - (1 / steps * currentStep);
+                }
             }
         }
         

@@ -59,6 +59,8 @@ Option|Description
 `maxTime`|The maximum ETA time the modules should list, in minutes. Default is to show all. <br/>**Expected Value type:** `int`.
 `showArrivalTime`|Show MBTA's predicted arrival time of the transportation vehicle.<br/>**Expected Value type:** `boolean`.
 `showETATime`|Show MBTA's predicted ETA for the vehicle.<br/>**Expected Value type:** `boolean`.
+`fade`|Whether or not to fade the module.<br/>**Expected Value type:** `boolean`.
+`fadePoint`|At what point to start fading. <br/>**Expected Value type:** `float`. Value range is from 0 to 1.
 
 More options will be added as this module becomes feature-rich.
 
@@ -69,7 +71,7 @@ More options will be added as this module becomes feature-rich.
 - [x] Options to filter various modes of transportation
 - [x] Formatting that matches the default modules
 - [ ] Alert tickers
-- [ ] Fade effect
+- [x] Fade effect
 - [x] Animations
 - [x] Cap on maximum amount of vehicles displayed
 
@@ -83,6 +85,10 @@ This list was last updated on 2017-06-14.
 - Gondola and funicular icons are unsupported!
 
   This is intentional. Unless there's a Font Awesome icon, or one that resembles one, I'm not adding it in, because there shouldn't be gondolas and funiculars in Boston anyways.
+
+- The header disappears when you fade the rest out! What gives?
+
+  Unfortunately, that's due to an issue with MagicMirror² core. I may do a pull request in the future, but as of right now, this is (unfortunate) intented behavior.
 
 This list was last updated on 2017-06-13.
 
