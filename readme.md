@@ -41,13 +41,14 @@ modules: [
 
 Option|Description
 ------|-----------
-`apikey`|You must specify the api key given by the MBTA.
-`updateInterval`|Time between updates, in seconds. Min Value: 10.
-`baseUrl`|The base url of the MBTA api. You shouldn't change this unless the MBTA moved the api to the new location, and the update hasn't been reflected in this module.
-`stations`|This is an array of stations that you wish to display. Currently, only one max station is allowed. For a list of station names, please refer to `stations-formatted.json`. Make sure to use the common name!<br/>Example: `stations: [ "Airport" ]`. This input should be an array.
-`formatETA`|Show ETA time in MM:SS instead of just seconds.
-`showMinutesOnly`|Show ETA time in minutes only. This overrides `formatETA`.
-`showOnly`|Filter out various modes of transportation. Example: `showOnly: ["Subway"]` would only show subways, while `showOnly: ["Subway", "Bus"]` would show both subways and buses. Default is to show all modes of transportation. This input should be an array. The various options are `Subway`, `Train`, `Bus`, `Ferry`, `Cable car`.
+`apikey`|Api key given by the MBTA.<br/>**Expected Value type:** `String`.
+`updateInterval`|Time between updates, in seconds. To protect API abuse, this module automatically limits this value to a minimum of `10`.<br/>**Expected Value type:** `int`.
+`baseUrl`|The base url of the MBTA api. You shouldn't change this unless the MBTA moved the api to the new location, and the update hasn't been reflected in this module.<br/>**Expected Value type:** `String`.
+`stations`|This is an array of stations that you wish to display. Currently, only one max station is allowed. For a list of station names, please refer to `stations-formatted.json`. Make sure to use the common name!<br/>Example: `stations: [ "Airport" ]`.<br/>**Expected Value type:** `[String, String, ...]`.
+`formatETA`|Show ETA time in MM:SS instead of just seconds.<br/>**Expected Value type:** `boolean`.
+`showMinutesOnly`|Show ETA time in minutes only. This overrides `formatETA`.<br/>**Expected Value type:** `boolean`.
+`showOnly`|Filter out various modes of transportation. Example: `showOnly: ["Subway"]` would only show subways, while `showOnly: ["Subway", "Bus"]` would show both subways and buses. Default is to show all modes of transportation.<br/>**Expected Value type:** `[String, String, ...]`.<br/>The various options are `Subway`, `Train`, `Bus`, `Ferry`, `Cable car`.
+`maxEntries`|The maximum entries allowed. Default is `10`.<br/>**Expected Value type:** `int`.
 
 More options will be added as this module becomes feature-rich.
 
@@ -60,7 +61,7 @@ More options will be added as this module becomes feature-rich.
 - [ ] Alert tickers
 - [ ] Fade effect
 - [x] Animations
-- [ ] Cap on maximum amount of vehicles displayed
+- [x] Cap on maximum amount of vehicles displayed
 
 This list was last updated on 2017-06-14.
 

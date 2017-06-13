@@ -8,6 +8,7 @@ Module.register("MMM-MBTA", {
         formatETA: false,
         showMinutesOnly: false,
         showOnly: [ ],
+        maxEntries: 8,
     },
     
     getStyles: function() {
@@ -142,7 +143,7 @@ Module.register("MMM-MBTA", {
                 var minutes = Math.floor(preAwayTime / 60);
                 var seconds = preAwayTime % 60;
                 
-                if (this.config.showMinutesOnly){
+                if (this.config.showMinutesOnly) {
                     preAwayCell.innerHTML = minutes;
                 } else if (this.config.formatETA) { // Parses the time away into MM:SS
                     // Padding so we don't get something like 4:3 minutes...
@@ -267,8 +268,9 @@ Module.register("MMM-MBTA", {
             }
         }
         
-        var self = this;
+        // Filters out items
         // This simply doesn't run when the param is empty.
+        var self = this;
         for (let i = 0; i < this.filterModes.length; i++) {
             var temp = rawData.filter(function(obj) {
                 return (obj.routeType === self.filterModes[i]);
@@ -283,6 +285,12 @@ Module.register("MMM-MBTA", {
         this.stationData.sort(function(a, b) {
             return a.preDt - b.preDt;
         });
+        
+        // Shortens the array
+        if (this.stationData.length > this.config.maxEntries) {
+            this.stationData.length = this.config.maxEntries;
+        }
+        
         this.loaded = true;
         
     },
