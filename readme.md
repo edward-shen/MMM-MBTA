@@ -8,6 +8,11 @@ show and filter data.
 For this to work, you need to create your own MBTA API key. You can get one by following [this link][mbta dev portal] and 
 signing up. Note that it may take up to a day to approve your api key, according to their website.
 
+
+**DISCLAIMER**
+
+The times provided are from MBTA's API. As a result, the predicted values may be off. Please only use this as an estimation. i am not responsible for missed transportation and any consequences as a result of it. This is not a precise tool, nor have I claimed it to be. By using this module, you agree to never assume that this is a precise tool, and that I take no fault in any missed appointments, finals, etc.
+
 ## Installation
 
 In your terminal, go to your MagicMirror's Module folder:
@@ -52,15 +57,17 @@ Option|Description
 `showOnly`|Filter out various modes of transportation. Example: `showOnly: ["Subway"]` would only show subways, while `showOnly: ["Subway", "Bus"]` would show both subways and buses. Default is to show all modes of transportation.<br/>**Expected Value type:** `[String, String, ...]`.<br/>The various options are `Subway`, `Train`, `Bus`, `Ferry`, `Cable car`.
 `maxEntries`|The maximum entries allowed. Default is `8`.<br/>**Expected Value type:** `int`.
 `maxTime`|The maximum ETA time the modules should list, in minutes. Default is to show all. <br/>**Expected Value type:** `int`.
+`showArrivalTime`|Show MBTA's predicted arrival time of the transportation vehicle.<br/>**Expected Value type:** `boolean`.
+`showETATime`|Show MBTA's predicted ETA for the vehicle.<br/>**Expected Value type:** `boolean`.
 
 More options will be added as this module becomes feature-rich.
 
 ## Planned Features
 - [x] Options to display minutes and seconds vesus just seconds
 - [ ] Options to display full description name
-- [ ] Options to display arrival time
+- [x] Options to display arrival time
 - [x] Options to filter various modes of transportation
-- [ ] Formatting that matches the default modules
+- [x] Formatting that matches the default modules
 - [ ] Alert tickers
 - [ ] Fade effect
 - [x] Animations

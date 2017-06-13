@@ -1,16 +1,18 @@
 Module.register("MMM-MBTA", {
     defaults: {
         apikey: "",
-        updateInterval: 60, // In seconds
+        updateInterval: 20, // In seconds
         baseUrl: "https://realtime.mbta.com/developer/api/v2/",
         stations: [ "Northeastern University Station" ],
         doAnimation: true,
         animationSpeed: 1000,
-        formatETA: false,
+        formatETA: true,
         showMinutesOnly: false,
         showOnly: [ ],
         maxEntries: 8,
         maxTime: 0,
+        showArrivalTime: false,
+        showETATime: true,
     },
     
     getStyles: function() {
@@ -19,6 +21,10 @@ Module.register("MMM-MBTA", {
     
     getHeader: function() {
         return this.data.header + " " + this.config.stations[0];
+    },
+    
+    getScripts: function () {
+        return ["moment.js"];
     },
     
     start: function() {
@@ -102,6 +108,7 @@ Module.register("MMM-MBTA", {
             var row = document.createElement("tr");
             table.appendChild(row);
             
+            // Icon
             var symbolCell = document.createElement("td");
             switch (this.stationData[i].routeType) {
                 case "0": // Tram/Streetcar/Light Rail case. We'll use the same icon.
@@ -130,40 +137,49 @@ Module.register("MMM-MBTA", {
             symbolCell.style.cssText = "padding-right: 10px";
             row.appendChild(symbolCell);
             
+            // Description
             var descCell = document.createElement("td");
             descCell.innerHTML = this.stationData[i].tripSign;
             descCell.className = "align-left bright";
             row.appendChild(descCell);
     
-            var preAwayCell = document.createElement("td");
-            var preAwayTime = parseInt(this.stationData[i].preAway);
-            
-            // Better to display single digits as "now"
-            if (preAwayTime < 10) {
-                preAwayCell.innerHTML = "Now";
-            } else {
-                var minutes = Math.floor(preAwayTime / 60);
-                var seconds = preAwayTime % 60;
-                
-                if (this.config.showMinutesOnly) {
-                    if (minutes === 0){
-                        preAwayCell.innerHTML = "< 1";
-                    } else {
-                        preAwayCell.innerHTML = minutes;
-                    }
-                } else if (this.config.formatETA) { // Parses the time away into MM:SS
-                    // Padding so we don't get something like 4:3 minutes...
-                    if (seconds < 10) {
-                        // lol what even is type casting
-                        seconds = "0" + seconds;
-                    }
-                    
-                    preAwayCell.innerHTML = minutes + ":" + seconds;
+            // ETA
+            if (this.config.showETATime) {
+                var preAwayCell = document.createElement("td");
+                var preAwayTime = parseInt(this.stationData[i].preAway);
+                if (preAwayTime < 10) { // Better to display single digits as "now"
+                    preAwayCell.innerHTML = "Now";
                 } else {
-                    preAwayCell.innerHTML = seconds;
+                    var minutes = Math.floor(preAwayTime / 60);
+                    var seconds = preAwayTime % 60;
+                    
+                    if (this.config.showMinutesOnly) {
+                        if (minutes === 0){
+                            preAwayCell.innerHTML = "< 1";
+                        } else {
+                            preAwayCell.innerHTML = minutes;
+                        }
+                    } else if (this.config.formatETA) { // Parses the time away into MM:SS
+                        // Padding so we don't get something like 4:3 minutes...
+                        if (seconds < 10) {
+                            // lol what even is type casting
+                            seconds = "0" + seconds;
+                        }
+                        
+                        preAwayCell.innerHTML = minutes + ":" + seconds;
+                    } else {
+                        preAwayCell.innerHTML = seconds;
+                    }
                 }
+                row.appendChild(preAwayCell);
             }
-            row.appendChild(preAwayCell);
+            
+            if (this.config.showArrivalTime) {
+                // Arrival time
+                var arrTimeCell = document.createElement("td");
+                arrTimeCell.innerHTML = moment(parseInt(this.stationData[i].preDt) * 1000).format("H:mm");
+                row.appendChild(arrTimeCell);
+            }
         }
         
         this.scheduleUpdate();
@@ -290,6 +306,10 @@ Module.register("MMM-MBTA", {
             for (let x = 0; x < temp.length; x++) {
                 this.stationData.push(temp[x]);
             }
+        }
+        
+        if (this.filterModes.length === 0) {
+            this.stationData = rawData;
         }
         
         // Sorts them according to ETA time
