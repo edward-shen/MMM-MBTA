@@ -72,7 +72,7 @@ This list was last updated on 2017-06-14.
 
 - Gondola and funicular icons are unsupported!
 
-  This is intentional. Unless there' a Font Awesome icon, or one that resembles one, I'm not adding it in, because there shouldn't be gondolas and funiculars in Boston anyways.
+  This is intentional. Unless there's a Font Awesome icon, or one that resembles one, I'm not adding it in, because there shouldn't be gondolas and funiculars in Boston anyways.
 
 This list was last updated on 2017-06-13.
 

@@ -144,7 +144,11 @@ Module.register("MMM-MBTA", {
                 var seconds = preAwayTime % 60;
                 
                 if (this.config.showMinutesOnly) {
-                    preAwayCell.innerHTML = minutes;
+                    if (minutes === 0){
+                        preAwayCell.innerHTML = "< 1";
+                    } else {
+                        preAwayCell.innerHTML = minutes;
+                    }
                 } else if (this.config.formatETA) { // Parses the time away into MM:SS
                     // Padding so we don't get something like 4:3 minutes...
                     if (seconds < 10) {
