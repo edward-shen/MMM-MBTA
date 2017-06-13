@@ -49,17 +49,17 @@ Option|Description
 More options will be added as this module becomes feature-rich.
 
 ## Planned Features
-- [ ] Options to display minutes and seconds vesus just seconds
+- [x] Options to display minutes and seconds vesus just seconds
 - [ ] Options to display full description name
 - [ ] Options to display arrival time
 - [ ] Options to filter various modes of transportation
 - [ ] Formatting that matches the default modules
 - [ ] Alert tickers
 - [ ] Fade effect
-- [ ] Animations
+- [x] Animations
 - [ ] Cap on maximum amount of vehicles displayed
 
-This list was last updated on 2017-06-13.
+This list was last updated on 2017-06-14.
 
 ## Known Bugs
 - On boot up, it takes a very long time to diplay your options
