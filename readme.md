@@ -69,4 +69,5 @@ This list was last updated on 2017-06-13.
   Please open up an issue if you see a question mark! Make sure to note what transportation type it should be (e.g. subway or bus) if possible, and please make sure to note what the text said (e.g. Back Bay)!
 
 This list was last updated on 2017-06-13.
+
 [mbta dev portal]: http://realtime.mbta.com/Portal/
