@@ -7,6 +7,7 @@ Module.register("MMM-MBTA", {
         animationSpeed: 1000,
         formatETA: false,
         showMinutesOnly: false,
+        showOnly: [ ],
     },
     
     getStyles: function() {
@@ -36,9 +37,27 @@ Module.register("MMM-MBTA", {
             this.stations[i] = stationDict[this.config.stations[i]];
         }
         
-        this.stationData = [];
+        this.stationData = []; // Clear station data
         
-        Log.info(this.stations);
+        this.filterModes = [];
+        if (this.config.showOnly.includes("Subway")) {
+            // Light rail and subway are synonymous in Boston
+            this.filterModes.push("0");
+            this.filterModes.push("1");
+        }
+        if (this.config.showOnly.includes("Train")) {
+            this.filterModes.push("2");
+        }
+        if (this.config.showOnly.includes("Bus")) {
+            this.filterModes.push("3");
+        }
+        if (this.config.showOnly.includes("Ferry")) {
+            this.filterModes.push("4");
+        }
+        if (this.config.showOnly.includes("Cable car")) {
+            this.filterModes.push("5");
+        }
+        
         
     },
     
@@ -70,8 +89,11 @@ Module.register("MMM-MBTA", {
             returnWrapper = true;
         }
     
+        /*-----------------------------------------*/
         
         var table = document.createElement("table");
+
+        
         table.className = "small";
         for (let i = 0; i < this.stationData.length; i++) {
             var row = document.createElement("tr");
@@ -79,12 +101,26 @@ Module.register("MMM-MBTA", {
             
             var symbolCell = document.createElement("td");
             switch (this.stationData[i].routeType) {
-                case "0":
+                case "0": // Tram/Streetcar/Light Rail case. We'll use the same icon.
+                case "1":
                     symbolCell.className = "fa fa-subway";
+                    break;
+                case "2":
+                    symbolCell.className = "fa fa-train";
                     break;
                 case "3":
                     symbolCell.className = "fa fa-bus";
                     break;
+                case "4":
+                    symbolCell.className = "fa fa-ship";
+                    break;
+                case "5": // Suppose to be a cable car but there's no FA icon, so we'll just use the train icon
+                    symbolCell.className = "fa fa-train";
+                    break;
+                case "6": // Gondola case
+                    // There shouldn't be a gondola in Boston.
+                case "7": // Funicular case
+                    // There shouldn't be a funicular in Boston.
                 default:
                     symbolCell.className = "fa fa-question-circle-o";
                     
@@ -111,7 +147,7 @@ Module.register("MMM-MBTA", {
                 } else if (this.config.formatETA) { // Parses the time away into MM:SS
                     // Padding so we don't get something like 4:3 minutes...
                     if (seconds < 10) {
-                        // lol what even is typing
+                        // lol what even is type casting
                         seconds = "0" + seconds;
                     }
                     
@@ -199,10 +235,11 @@ Module.register("MMM-MBTA", {
          "preAway": int}
          */
          
-        this.stationData = [ ] // clear all data.
+        this.stationData = [ ]; // clear all data.
         
         // Please, if you know how to simplify this and make this readable, I would love you forever.
         var curDir;
+        var rawData = [ ];
         for (let mode = 0; mode < data["mode"].length; mode++) {
             curDir = data["mode"][mode];
             var routeType = curDir.route_type;
@@ -216,7 +253,9 @@ Module.register("MMM-MBTA", {
                         tripSign = curDir[direction]["trip"][trip].trip_headsign,
                         preDt = curDir[direction]["trip"][trip].pre_dt;
                         preAway = curDir[direction]["trip"][trip].pre_away;
-                    this.stationData.push({
+                    rawData.push({
+                        // Note all values are strings. I'd really like to not worry about
+                        // loose js casting.
                         routeType: routeType,
                         dirName: dirName,
                         tripName: tripName,
@@ -228,11 +267,23 @@ Module.register("MMM-MBTA", {
             }
         }
         
+        var self = this;
+        // This simply doesn't run when the param is empty.
+        for (let i = 0; i < this.filterModes.length; i++) {
+            var temp = rawData.filter(function(obj) {
+                return (obj.routeType === self.filterModes[i]);
+            });
+            
+            for (let x = 0; x < temp.length; x++) {
+                this.stationData.push(temp[x]);
+            }
+        }
+        
+        // Sorts them according to ETA time
         this.stationData.sort(function(a, b) {
             return a.preDt - b.preDt;
         });
         this.loaded = true;
         
-        Log.info(this.stationData);
     },
 });
