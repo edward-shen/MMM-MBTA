@@ -177,7 +177,11 @@ Module.register("MMM-MBTA", {
             if (this.config.showArrivalTime) {
                 // Arrival time
                 var arrTimeCell = document.createElement("td");
-                arrTimeCell.innerHTML = moment(parseInt(this.stationData[i].preDt) * 1000).format("H:mm");
+                if (config.timeFormat === 24) {
+                    arrTimeCell.innerHTML = moment(parseInt(this.stationData[i].preDt) * 1000).format("H:mm");
+                } else {
+                    arrTimeCell.innerHTML = moment(parseInt(this.stationData[i].preDt) * 1000).format("h:mm");
+                }
                 row.appendChild(arrTimeCell);
             }
         }
