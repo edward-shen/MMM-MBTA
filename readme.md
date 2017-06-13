@@ -1,3 +1,5 @@
+![Example of MMM-MBTA](./example_picture.png)
+
 # MMM-MBTA
 
 This MagicMirror² Module is designed to pull information from the Massachusetts Bay Transportation Authority's API and to
