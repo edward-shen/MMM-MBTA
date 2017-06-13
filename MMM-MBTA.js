@@ -201,7 +201,10 @@ Module.register("MMM-MBTA", {
             }
         }
         
-        this.scheduleUpdate();
+        // Don't start the update loop on first init
+        if (!this.loaded) {
+            this.scheduleUpdate();
+        }
         
         if (returnWrapper) {
             var div = document.createElement("div");
@@ -211,6 +214,15 @@ Module.register("MMM-MBTA", {
         }
         
         return table;
+    },
+    
+    notificationReceived: function(notification, payload, sender) {
+        if (notification === "DOM_OBJECTS_CREATED") {
+            Log.log(this.name + " received a system notification: " + notification);
+            this.fetchData(true);
+            Log.log("updating dom");
+        }
+        
     },
     
     // Note to self: This is called by getDom(), which this eventually calls...
@@ -235,7 +247,8 @@ Module.register("MMM-MBTA", {
         }, interval * 1000);
     },
     
-    fetchData: function() {
+    // params: updateDomAfter: boolean, whether or not to call updateDom() after processing data.
+    fetchData: function(updateDomAfter) {
         for (let stop in this.stations) {
             var url = this.formUrl(this.stations[stop]);
             var MBTARequest = new XMLHttpRequest();
@@ -245,14 +258,13 @@ Module.register("MMM-MBTA", {
             MBTARequest.onreadystatechange = function() {
                 if (this.readyState === 4) {
                     if (this.status === 200) {
-                        self.processData(JSON.parse(this.response));
+                        self.processData(JSON.parse(this.response), updateDomAfter);
                     }
                 }
             };
             
             MBTARequest.send();
         }
-        
     },
     
     // Gets API URL based off user settings
@@ -269,7 +281,7 @@ Module.register("MMM-MBTA", {
         return url;
     },
     
-    processData: function(data) {
+    processData: function(data, updateDomAfter) {
         /* Nice little list of everything we have
         Each element in this array is an entry on our displayed table.
         Format should be
@@ -343,5 +355,10 @@ Module.register("MMM-MBTA", {
         
         this.loaded = true;
         
+        Log.log("Finsihed processing data");
+        
+        if (updateDomAfter) {
+            this.updateDom();
+        }
     },
 });

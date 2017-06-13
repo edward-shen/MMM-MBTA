@@ -78,10 +78,6 @@ More options will be added as this module becomes feature-rich.
 This list was last updated on 2017-06-14.
 
 ## Known Bugs
-- On boot up, it takes a very long time to diplay your options
-
-  This can be fixed by setting up a reciever for the system notification `DOM_OBJECTS_CREATED` and start our update loop from there
-
 - Gondola and funicular icons are unsupported!
 
   This is intentional. Unless there's a Font Awesome icon, or one that resembles one, I'm not adding it in, because there shouldn't be gondolas and funiculars in Boston anyways.
