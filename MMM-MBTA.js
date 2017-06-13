@@ -202,7 +202,7 @@ Module.register("MMM-MBTA", {
         }
         
         // Don't start the update loop on first init
-        if (!this.loaded) {
+        if (this.loaded) {
             this.scheduleUpdate();
         }
         
@@ -354,8 +354,6 @@ Module.register("MMM-MBTA", {
         }
         
         this.loaded = true;
-        
-        Log.log("Finsihed processing data");
         
         if (updateDomAfter) {
             this.updateDom();
