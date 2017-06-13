@@ -45,6 +45,8 @@ Option|Description
 `updateInterval`|Time between updates, in seconds. Min Value: 10.
 `baseUrl`|The base url of the MBTA api. You shouldn't change this unless the MBTA moved the api to the new location, and the update hasn't been reflected in this module.
 `stations`|This is an array of stations that you wish to display. Currently, only one max station is allowed. For a list of station names, please refer to `stations-formatted.json`. Make sure to use the common name!<br/>Example: `stations: [ "Airport" ],`
+`formatETA`|Show ETA time in MM:SS instead of just seconds.
+`showMinutesOnly`|Show ETA time in minutes only. This overrides `formatETA`.
 
 More options will be added as this module becomes feature-rich.
 

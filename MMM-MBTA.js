@@ -6,6 +6,7 @@ Module.register("MMM-MBTA", {
         stations: [ "Northeastern University Station" ],
         animationSpeed: 1000,
         formatETA: false,
+        showMinutesOnly: false,
     },
     
     getStyles: function() {
@@ -102,11 +103,12 @@ Module.register("MMM-MBTA", {
             if (preAwayTime < 10) {
                 preAwayCell.innerHTML = "Now";
             } else {
+                var minutes = Math.floor(preAwayTime / 60);
+                var seconds = preAwayTime % 60;
                 
-                // Parses the time away into MM:SS
-                if (this.config.formatETA) {
-                    var minutes = Math.floor(preAwayTime / 60);
-                    var seconds = preAwayTime % 60;
+                if (this.config.showMinutesOnly){
+                    preAwayCell.innerHTML = minutes;
+                } else if (this.config.formatETA) { // Parses the time away into MM:SS
                     // Padding so we don't get something like 4:3 minutes...
                     if (seconds < 10) {
                         // lol what even is typing
@@ -115,7 +117,7 @@ Module.register("MMM-MBTA", {
                     
                     preAwayCell.innerHTML = minutes + ":" + seconds;
                 } else {
-                    preAwayCell.innerHTML = this.stationData[i].preAway;
+                    preAwayCell.innerHTML = seconds;
                 }
             }
             row.appendChild(preAwayCell);
