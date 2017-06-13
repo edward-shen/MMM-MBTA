@@ -4,11 +4,13 @@ Module.register("MMM-MBTA", {
         updateInterval: 60, // In seconds
         baseUrl: "https://realtime.mbta.com/developer/api/v2/",
         stations: [ "Northeastern University Station" ],
+        doAnimation: true,
         animationSpeed: 1000,
         formatETA: false,
         showMinutesOnly: false,
         showOnly: [ ],
         maxEntries: 8,
+        maxTime: 0,
     },
     
     getStyles: function() {
@@ -124,8 +126,8 @@ Module.register("MMM-MBTA", {
                     // There shouldn't be a funicular in Boston.
                 default:
                     symbolCell.className = "fa fa-question-circle-o";
-                    
             }
+            symbolCell.style.cssText = "padding-right: 10px";
             row.appendChild(symbolCell);
             
             var descCell = document.createElement("td");
@@ -190,7 +192,11 @@ Module.register("MMM-MBTA", {
         
         setTimeout(function() {
             self.fetchData();
-            self.updateDom(self.config.animationSpeed);
+            if (self.config.doAnimation) {
+                self.updateDom(self.config.animationSpeed);
+            } else {
+                self.updateDom();
+            }
         }, interval * 1000);
     },
     
@@ -280,6 +286,7 @@ Module.register("MMM-MBTA", {
                 return (obj.routeType === self.filterModes[i]);
             });
             
+            // For some reason a for-each loop won't work.
             for (let x = 0; x < temp.length; x++) {
                 this.stationData.push(temp[x]);
             }

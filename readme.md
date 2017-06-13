@@ -45,10 +45,13 @@ Option|Description
 `updateInterval`|Time between updates, in seconds. To protect API abuse, this module automatically limits this value to a minimum of `10`.<br/>**Expected Value type:** `int`.
 `baseUrl`|The base url of the MBTA api. You shouldn't change this unless the MBTA moved the api to the new location, and the update hasn't been reflected in this module.<br/>**Expected Value type:** `String`.
 `stations`|This is an array of stations that you wish to display. Currently, only one max station is allowed. For a list of station names, please refer to `stations-formatted.json`. Make sure to use the common name!<br/>Example: `stations: [ "Airport" ]`.<br/>**Expected Value type:** `[String, String, ...]`.
+`doAnimation`|Whether or not to do an animation when updating.<br/>**Expected Value type:** `boolean`.
+`animationSpeed`|How long the update animation lasts. <br/>**Expected Value type:** `int`.
 `formatETA`|Show ETA time in MM:SS instead of just seconds.<br/>**Expected Value type:** `boolean`.
 `showMinutesOnly`|Show ETA time in minutes only. This overrides `formatETA`.<br/>**Expected Value type:** `boolean`.
 `showOnly`|Filter out various modes of transportation. Example: `showOnly: ["Subway"]` would only show subways, while `showOnly: ["Subway", "Bus"]` would show both subways and buses. Default is to show all modes of transportation.<br/>**Expected Value type:** `[String, String, ...]`.<br/>The various options are `Subway`, `Train`, `Bus`, `Ferry`, `Cable car`.
-`maxEntries`|The maximum entries allowed. Default is `10`.<br/>**Expected Value type:** `int`.
+`maxEntries`|The maximum entries allowed. Default is `8`.<br/>**Expected Value type:** `int`.
+`maxTime`|The maximum ETA time the modules should list, in minutes. Default is to show all. <br/>**Expected Value type:** `int`.
 
 More options will be added as this module becomes feature-rich.
 
