@@ -370,9 +370,7 @@ Module.register("MMM-MBTA", {
         // This simply doesn't run when the param is empty.
         var self = this;
         for (let i = 0; i < this.filterModes.length; i++) {
-            var temp = rawData.filter(function(obj) {
-                return (obj.routeType === self.filterModes[i]);
-            });
+            var temp = rawData.filter(obj => (obj.routeType === self.filterModes[i]));
             
             // For some reason a for-each loop won't work.
             for (let x = 0; x < temp.length; x++) {
@@ -385,9 +383,11 @@ Module.register("MMM-MBTA", {
         }
         
         // Sorts them according to ETA time
-        this.stationData.sort(function(a, b) {
-            return a.preDt - b.preDt;
-        });
+        this.stationData.sort((a,b) => (a.preDt - b.preDt));
+        
+        if (this.config.maxTime !== 0) {
+            this.stationData = this.stationData.filter(obj => (obj.preAway <= this.config.maxTime * 60));
+        }
         
         // Shortens the array
         if (this.stationData.length > this.config.maxEntries) {
