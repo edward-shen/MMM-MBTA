@@ -20,7 +20,7 @@ Module.register("MMM-MBTA", {
     },
     
     getStyles: function() {
-        return ["font-awesome.css", "alert-styles.css"];
+        return ["font-awesome.css"];
     },
     
     getHeader: function() {

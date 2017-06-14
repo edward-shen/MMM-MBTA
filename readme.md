@@ -3,8 +3,7 @@
 
 ![Example of MMM-MBTA](./example_picture.png)
 
-This [MagicMirror²][mm] Module is designed to pull information from the Massachusetts Bay Transportation Authority's API and to
-show and filter data.
+This [MagicMirror²][mm] Module is designed to pull information from the Massachusetts Bay Transportation Authority's API and to show and filter data.
 
 For this to work, you need to create your own MBTA API key. You can get one by following [this link][mbta dev portal] and 
 signing up. Note that it may take up to a day to approve your api key, according to their website.
