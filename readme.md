@@ -62,6 +62,7 @@ Option|Description
 `fade`|Whether or not to fade the module.<br/>**Expected Value type:** `boolean`.
 `fadePoint`|At what point to start fading. <br/>**Expected Value type:** `float`. Value range is from 0 to 1.
 `showFullName`|Display the full name instead of the short name. Due to the length the text, it is strongly recommended that the postition of this module is set to `top_bar`, `bottom_bar`, or any location where it can expand to the entire width when this is set to `true`.<br/>**Expected Value type:** `boolean`.
+`showAlerts`|Shows alerts near the specified station.<br/>**Expected Value type:** `boolean`.<br/>**WARNING**: Alerts are only properly shown when in a full-width position, such as `top_bar`, `middle_center` or `lower_third`.
 
 More options will be added as this module becomes feature-rich.
 
@@ -71,12 +72,12 @@ More options will be added as this module becomes feature-rich.
 - [x] Options to display arrival time
 - [x] Options to filter various modes of transportation
 - [x] Formatting that matches the default modules
-- [ ] Alert tickers
+- [x] Alert tickers **Partial support**
 - [x] Fade effect
 - [x] Animations
 - [x] Cap on maximum amount of vehicles displayed
 
-This list was last updated on 2017-06-14.
+This list was last updated on 2017-06-13.
 
 ## Known Bugs
 - Gondola and funicular icons are unsupported!

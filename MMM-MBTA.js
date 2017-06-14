@@ -4,7 +4,7 @@ Module.register("MMM-MBTA", {
         updateInterval: 20, // In seconds
         baseUrl: "https://realtime.mbta.com/developer/api/v2/",
         stations: [ "Northeastern University Station" ],
-        doAnimation: true,
+        doAnimation: false,
         animationSpeed: 1000,
         formatETA: true,
         showMinutesOnly: false,
@@ -16,10 +16,11 @@ Module.register("MMM-MBTA", {
         fade: true,
         fadePoint: 0.25, // Start on 1/4th of the list.
         showFullName: false,
+        showAlerts: false,
     },
     
     getStyles: function() {
-        return ["font-awesome.css"];
+        return ["font-awesome.css", "alert-styles.css"];
     },
     
     getHeader: function() {
@@ -70,17 +71,16 @@ Module.register("MMM-MBTA", {
             this.filterModes.push("5");
         }
         
+        this.alerts = [ ];
         
     },
     
     getDom: function() {
         var wrapper = document.createElement("div");
-        var returnWrapper = false;
         
         if (!this.loaded) {
             wrapper.innerHTML += "LOADING";
             wrapper.className = "dimmed light small";
-            returnWrapper = true;
         }
         
         
@@ -98,15 +98,13 @@ Module.register("MMM-MBTA", {
             }
             wrapper.innerHTML += "Warning! You are using a dev api key!";
             wrapper.className = "dimmed light small";
-            returnWrapper = true;
         }
     
         /*-----------------------------------------*/
         
         var table = document.createElement("table");
-
-        
         table.className = "small";
+        
         for (let i = 0; i < this.stationData.length; i++) {
             var row = document.createElement("tr");
             table.appendChild(row);
@@ -206,19 +204,56 @@ Module.register("MMM-MBTA", {
             }
         }
         
+        wrapper.appendChild(table);
+        
         // Don't start the update loop on first init
         if (this.loaded) {
             this.scheduleUpdate();
         }
         
-        if (returnWrapper) {
-            var div = document.createElement("div");
-            div.appendChild(wrapper);
-            div.appendChild(table);
-            return div;
+        if (this.config.showAlerts) {
+            // This might break in future updates
+            var alertHeader = document.createElement("header");
+            alertHeader.className = "module-header";
+            alertHeader.innerHTML = "Alerts";
+            wrapper.appendChild(alertHeader);
+            
+            var alertTable = document.createElement("table");
+            alertTable.className = "small";
+            
+            for (let i = 0; i < this.alerts.length; i++) {
+                var row = document.createElement("tr");
+                alertTable.appendChild(row);
+                alertTable.style.cssText = "width: inherit";
+                
+                // Icon
+                var symbolCell = document.createElement("td");
+                switch (this.alerts[i].effect_name) {
+                    case "Delay":
+                        symbolCell.className = "fa fa-exclamation-triangle";
+                        break;
+                    case "Service Change":
+                        symbolCell.className = "fa fa-exclamation-circle";
+                        break;
+                    default:
+                        symbolCell.className = "fa fa-question-circle-o";
+                }
+                symbolCell.style.cssText = "padding-right: 10px";
+                row.appendChild(symbolCell);
+                
+                // If I ever want to add in marquee effect https://stackoverflow.com/a/21233577/5054366
+                var descCell = document.createElement("td");
+                descCell.innerHTML = this.alerts[i].header_text;
+                descCell.className = "light small";
+                row.appendChild(descCell);
+                
+            }
+            
+            wrapper.appendChild(alertTable);
         }
         
-        return table;
+        
+        return wrapper;
     },
     
     notificationReceived: function(notification, payload, sender) {
@@ -359,6 +394,15 @@ Module.register("MMM-MBTA", {
             this.stationData.length = this.config.maxEntries;
         }
         
+        /*-----------------------------*/
+        
+        if (this.config.showAlerts) {
+            this.alerts = [ ];
+            for (let i = 0; i < data["alert_headers"].length; i++) {
+                this.alerts.push(data["alert_headers"][i]);
+            }
+        }
+     
         this.loaded = true;
         
         if (updateDomAfter) {
