@@ -50,6 +50,7 @@ Option|Description
 `updateInterval`|Time between updates, in seconds. To protect API abuse, this module automatically limits this value to a minimum of `10`.<br/>**Expected Value type:** `int`.
 `baseUrl`|The base url of the MBTA api. You shouldn't change this unless the MBTA moved the api to the new location, and the update hasn't been reflected in this module.<br/>**Expected Value type:** `String`.
 `stations`|This is an array of stations that you wish to display. Currently, only one max station is allowed. For a list of station names, please refer to `stations-formatted.json`. Make sure to use the common name!<br/>Example: `stations: [ "Airport" ]`.<br/>**Expected Value type:** `[String, String, ...]`.
+`predictedTimes`|Use MBTA predicted times or scheduled times. Default is predicted times (true).<br/>**Expected Value type:** `boolean`.
 `doAnimation`|Whether or not to do an animation when updating.<br/>**Expected Value type:** `boolean`.
 `animationSpeed`|How long the update animation lasts. <br/>**Expected Value type:** `int`.
 `formatETA`|Show ETA time in MM:SS instead of just seconds.<br/>**Expected Value type:** `boolean`.
@@ -58,10 +59,12 @@ Option|Description
 `maxEntries`|The maximum entries allowed. Default is `8`.<br/>**Expected Value type:** `int`.
 `maxTime`|The maximum ETA time the modules should list, in minutes. Default is to show all. <br/>**Expected Value type:** `int`.
 `showArrivalTime`|Show MBTA's predicted arrival time of the transportation vehicle.<br/>**Expected Value type:** `boolean`.
+`showDepartTime`|Show MBTA's predicted departure time of the transportation vehicle.<br/>**Expected Value type:** `boolean`.
 `showETATime`|Show MBTA's predicted ETA for the vehicle.<br/>**Expected Value type:** `boolean`.
 `fade`|Whether or not to fade the module.<br/>**Expected Value type:** `boolean`.
 `fadePoint`|At what point to start fading. <br/>**Expected Value type:** `float`. Value range is from 0 to 1.
 `showFullName`|Display the full name instead of the short name. Due to the length the text, it is strongly recommended that the postition of this module is set to `top_bar`, `bottom_bar`, or any location where it can expand to the entire width when this is set to `true`.<br/>**Expected Value type:** `boolean`.
+`colorIcons`|Display the vehicle icons in their respective color.<br/>**Expected Value type:** `boolean`.
 `showAlerts`|Shows alerts near the specified station.<br/>**Expected Value type:** `boolean`.<br/>**WARNING**: Alerts are only properly shown when in a full-width position, such as `top_bar`, `middle_center` or `lower_third`.
 
 More options will be added as this module becomes feature-rich.

@@ -1,0 +1,70 @@
+.MMM-MBTA .red {
+  color: #cd2230;
+}
+
+.MMM-MBTA .blue {
+  color: #0064c8;
+}
+
+.MMM-MBTA .orange {
+  color: #ff8200;
+}
+
+.MMM-MBTA .green {
+  color: #428608;
+}
+
+.MMM-MBTA .commuter {
+  color: #a00a78;
+}
+
+.MMM-MBTA .bus {
+  color: #ffce0c;
+}
+
+.MMM-MBTA .boat {
+  color: #5da9e8;
+}
+
+.alerts {
+  margin-top: 6px;
+}
+
+.MMM-MBTA .alert {
+  display: inline-block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  text-align: left;
+  white-space: nowrap;
+  /* Starting position */
+  -moz-transform:translateX(100%);
+  -webkit-transform:translateX(100%);  
+  transform:translateX(100%);
+  /* Apply animation to this element */  
+  -moz-animation: td 17s linear infinite;
+  -webkit-animation: td 17s linear infinite;
+  animation: td 17s linear infinite;
+}
+/* Move it (define the animation) */
+@-moz-keyframes td {
+  0%   { -moz-transform: translateX(100%); }
+  100% { -moz-transform: translateX(-100%); }
+}
+@-webkit-keyframes td {
+  0%   { -webkit-transform: translateX(100%); }
+  100% { -webkit-transform: translateX(-100%); }
+}
+@keyframes td {
+  0%  { 
+    -moz-transform: translateX(100%); /* Firefox bug fix */
+    -webkit-transform: translateX(100%); /* Firefox bug fix */
+    transform: translateX(100%);
+  }
+  100% { 
+    -moz-transform: translateX(-100%); /* Firefox bug fix */
+    -webkit-transform: translateX(-100%); /* Firefox bug fix */
+    transform: translateX(-100%); 
+  }
+}
