@@ -3,7 +3,7 @@ Module.register("MMM-MBTA", {
         apikey: "",
         updateInterval: 20, // In seconds
         baseUrl: "https://api-v3.mbta.com/",
-        stations: [ "Northeastern University Station" ],
+        stations: [ "Northeastern University" ],
         direction: [ ],
         predictedTimes: true,
         doAnimation: false,
@@ -22,25 +22,25 @@ Module.register("MMM-MBTA", {
         colorIcons: false,
         showAlerts: false
     },
-    
+
     getStyles: function() {
         return ["font-awesome.css", "MMM-MBTA.css"];
     },
-    
+
     getHeader: function() {
         return this.data.header + " " + this.config.stations[0];
     },
-    
+
     getScripts: function () {
         return ["moment.js", "https://code.jquery.com/jquery-3.3.1.min.js"];
     },
-    
+
     start: function() {
         // API abuse prevention
         if (this.config.updateInterval < 10) {
             this.config.updateInterval = 10;
         }
-        
+
         this.loaded = false;
         // Dictionary sincerely stolen from https://github.com/mbtaviz/mbtaviz.github.io/
         // and green line dictionary data taken from https://github.com/mbtaviz/green-line-release/
@@ -52,7 +52,7 @@ Module.register("MMM-MBTA", {
         for (let i = 0; i < this.config.stations.length; i++) {
             this.stations[i] = stationDict[this.config.stations[i]];
         }
-        
+
         this.stationData = []; // Clear station data
         this.filterModes = [];
 
@@ -96,18 +96,18 @@ Module.register("MMM-MBTA", {
         }
 
         this.alerts = [ ];
-        
+
     },
-    
+
     getDom: function() {
         var wrapper = document.createElement("div");
-        
+
         if (!this.loaded) {
             wrapper.innerHTML += "LOADING";
             wrapper.className = "dimmed light small";
         }
-        
-        
+
+
         // Check if an API key is in the config
         if (this.config.apikey === "") {
             if (wrapper.innerHTML !== "") {
@@ -119,14 +119,14 @@ Module.register("MMM-MBTA", {
         }
 
         /*-----------------------------------------*/
-        
+
         var table = document.createElement("table");
         table.className = "small";
-        
+
         for (let i = 0; i < this.stationData.length; i++) {
             var row = document.createElement("tr");
             table.appendChild(row);
-            
+
             // Icon
             var symbolCell = document.createElement("td");
             switch (this.stationData[i].routeType) {
@@ -222,7 +222,7 @@ Module.register("MMM-MBTA", {
             }
             descCell.className = "align-left bright";
             row.appendChild(descCell);
-    
+
             // ETA
             if (this.config.showETATime) {
                 var preETACell = document.createElement("td");
@@ -252,7 +252,6 @@ Module.register("MMM-MBTA", {
                             // lol what even is type casting
                             seconds = "0" + seconds;
                         }
-                        
                         preETACell.innerHTML = minutes + ":" + seconds;
                     } else {
                         preETACell.innerHTML = seconds;
@@ -312,9 +311,9 @@ Module.register("MMM-MBTA", {
                 }
             }
         }
-        
+
         wrapper.appendChild(table);
-        
+
         // Don't start the update loop on first init
         if (this.loaded) {
             this.scheduleUpdate();
@@ -362,7 +361,7 @@ Module.register("MMM-MBTA", {
         }
         return wrapper;
     },
-    
+
     notificationReceived: function(notification, payload, sender) {
         if (notification === "DOM_OBJECTS_CREATED") {
             Log.log(this.name + " received a system notification: " + notification);
@@ -370,19 +369,11 @@ Module.register("MMM-MBTA", {
             Log.log("updating dom");
         }
     },
-    
-    // Note to self: This is called by getDom(), which this eventually calls...
-    // Shouldn't be a problem... right? 
+
     scheduleUpdate: function(amt) {
-        var interval;
-        if (amt !== undefined) {
-            interval = amt;
-        } else {
-            interval = this.config.updateInterval;
-        }
-        
+        var interval = (amt !== undefined) ? amt : this.config.updateInterval;
         var self = this;
-        
+
         setTimeout(function() {
             self.fetchData();
             if (self.config.doAnimation) {
@@ -392,14 +383,14 @@ Module.register("MMM-MBTA", {
             }
         }, interval * 1000);
     },
-    
+
     // params: updateDomAfter: boolean, whether or not to call updateDom() after processing data.
     fetchData: function(updateDomAfter) {
         for (let stop in this.stations) {
             var url = this.formUrl(this.stations[stop]);
             var MBTARequest = new XMLHttpRequest();
             MBTARequest.open("GET", url, true);
-            
+
             var self = this;
             MBTARequest.onreadystatechange = function() {
                 if (this.readyState === 4) {
@@ -408,11 +399,11 @@ Module.register("MMM-MBTA", {
                     }
                 }
             };
-            
+
             MBTARequest.send();
         }
     },
-    
+
     // Gets API URL based off user settings
     formUrl: function(stopId) {
         var url = this.config.baseUrl;
@@ -432,7 +423,6 @@ Module.register("MMM-MBTA", {
             url += "&filter[min_time]=" + moment().format("HH:mm");
             url += "&filter[max_time]=" + moment().add(3, 'h').format("HH:mm");
         }
-
         return url;
     },
 
@@ -631,11 +621,11 @@ Module.register("MMM-MBTA", {
                 this.stationData.push(temp[x]);
             }
         }
-        
+
         if (this.filterModes.length === 0) {
             this.stationData = rawData;
         }
-        
+
         // Sorts them according to ETA time
         this.stationData.sort((a,b) => (a.preETA - b.preETA));
         
@@ -656,13 +646,9 @@ Module.register("MMM-MBTA", {
                 preETA: "None"
             });
         }
-        
-        // Shortens the array
-        if (this.stationData.length > this.config.maxEntries) {
-            this.stationData.length = this.config.maxEntries;
-        }
 
-        /*-----------------------------*/
+        // Shortens the array
+        this.stationData.length = Math.min(this.stationData.length, this.config.maxEntries);
 
         this.loaded = true;
         if (updateDomAfter) {
