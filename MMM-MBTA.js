@@ -413,7 +413,7 @@ Module.register("MMM-MBTA", {
     fetchRoute: function(data, updateDomAfter, pred, routeId, tripId, alertId, rawData) {
         var deferredPromise = $.Deferred();
 
-        var routeUrl = this.routeUrl(routeId);
+        var routeUrl = this.detailsUrl("routes",routeId);
         var routeRequest = new XMLHttpRequest();
         routeRequest.open("GET", routeUrl, true);
 
@@ -433,19 +433,8 @@ Module.register("MMM-MBTA", {
         return deferredPromise;
     },
 
-    routeUrl: function(routeId) {
-        var routeUrl = this.config.baseUrl;
-
-        // query goes here
-        routeUrl += "routes/";
-        routeUrl += routeId;
-        routeUrl += "?api_key=" + this.config.apikey; 
-
-        return routeUrl;
-    },
-
     fetchTrip: function(data, updateDomAfter, pred, routeParse, tripId, alertId, rawData, promise) {
-        var tripUrl = this.tripUrl(tripId);
+        var tripUrl = this.detailsUrl("trips",tripId);
         var tripRequest = new XMLHttpRequest();
         tripRequest.open("GET", tripUrl, true);
 
@@ -463,24 +452,13 @@ Module.register("MMM-MBTA", {
         tripRequest.send();
     },
 
-    tripUrl: function(tripId) {
-        var tripUrl = this.config.baseUrl;
-
-        // query goes here
-        tripUrl += "trips/";
-        tripUrl += tripId;
-        tripUrl += "?api_key=" + this.config.apikey;
-
-        return tripUrl;
-    },
-
     fetchAlerts: function(data, updateDomAfter, pred, routeParse, tripParse, alertId, rawData, promise) {
         if (alertId === "No alerts") {
             var self = this;
             self.processData(data, updateDomAfter, pred, routeParse, tripParse, alertId, rawData);
             promise.resolve();
         } else {
-            var alertUrl = this.alertUrl(alertId);
+            var alertUrl = this.detailsUrl("alerts", alertId);
             var alertRequest = new XMLHttpRequest();
             alertRequest.open("GET", alertUrl, true);
 
@@ -501,15 +479,13 @@ Module.register("MMM-MBTA", {
         alertRequest.send();
     },
 
-    alertUrl: function(alertId) {
-        var alertUrl = this.config.baseUrl;
+    detailsUrl: function(detail,id) {
+        var url = this.config.baseUrl;
+        url += '"' + detail + '/"';
+        url += id;
+        url += "?api_key=" + this.config.apikey;
 
-        // query goes here
-        alertUrl += "alerts/";
-        alertUrl += alertId;
-        alertUrl += "?api_key=" + this.config.apikey;
-
-        return alertUrl;
+        return url
     },
 
     loopData: function(data, updateDomAfter) {
