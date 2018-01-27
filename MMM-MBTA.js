@@ -1,10 +1,10 @@
 Module.register("MMM-MBTA", {
     defaults: {
         apikey: "",
-        updateInterval: 20, // In seconds
+        updateInterval: 10, // In seconds
         baseUrl: "https://api-v3.mbta.com/",
         stations: [ "Northeastern University" ],
-        direction: [ ],
+        direction: "",
         predictedTimes: true,
         doAnimation: false,
         animationSpeed: 1000,
@@ -76,27 +76,19 @@ Module.register("MMM-MBTA", {
 
         this.filterDirection = [];
 
-        if (this.config.direction.includes("Outbound")) {
-            this.filterDirection.push("0");
+        switch (this.config.direction) {
+            case "Southbound":
+            case "Westbound":
+            case "Outbound":
+                this.filterDirection.push("0");
+                break;
+            case "Northbound":
+            case "Eastbound":
+            case "Inbound":
+                this.filterDirection.push("1");
+                break;
         }
-        if (this.config.direction.includes("Inbound")) {
-            this.filterDirection.push("1");
-        }
-        if (this.config.direction.includes("Southbound")) {
-            this.filterDirection.push("0");
-        }
-        if (this.config.direction.includes("Northbound")) {
-            this.filterDirection.push("1");
-        }
-        if (this.config.direction.includes("Westbound")) {
-            this.filterDirection.push("0");
-        }
-        if (this.config.direction.includes("Eastbound")) {
-            this.filterDirection.push("1");
-        }
-
         this.alerts = [ ];
-        
     },
     
     getDom: function() {
@@ -106,7 +98,6 @@ Module.register("MMM-MBTA", {
             wrapper.innerHTML += "LOADING";
             wrapper.className = "dimmed light small";
         }
-        
         
         // Check if an API key is in the config
         if (this.config.apikey === "") {
@@ -192,7 +183,12 @@ Module.register("MMM-MBTA", {
 
             // Description
             var descCell = document.createElement("td");
-            descCell.innerHTML = this.stationData[i].tripSign;
+            if (!this.stationData[i].tripSign) {
+                descCell.innerHTML = "No vehicles are scheduled";
+            } else {
+                descCell.innerHTML = this.stationData[i].tripSign;
+            }
+            //Change routeId to public route name
             if (isNaN(this.stationData[i].routeId) === false) {
                 switch (this.stationData[i].routeId) {
                     case "741":
@@ -263,15 +259,11 @@ Module.register("MMM-MBTA", {
             // Arrival time
             if (this.config.showArrivalTime) {
                 var arrTimeCell = document.createElement("td");
-                if (config.timeFormat === 24) {
-                    if (isNaN(this.stationData[i].preArr) === true) {
-                        arrTimeCell.innerHTML = "No arrival";
-                    } else {
-                        arrTimeCell.innerHTML = moment.unix(this.stationData[i].preArr).format("H:mm");
-                    }
+                if (!this.stationData[i].preArr) {
+                    arrTimeCell.innerHTML = "No arrival";
                 } else {
-                    if (isNaN(this.stationData[i].preArr) === true) {
-                        arrTimeCell.innerHTML = "No arrival";
+                    if (config.timeFormat === 24) {
+                        arrTimeCell.innerHTML = moment.unix(this.stationData[i].preArr).format("H:mm");
                     } else {
                         arrTimeCell.innerHTML = moment.unix(this.stationData[i].preArr).format("h:mm");
                     }
@@ -282,15 +274,11 @@ Module.register("MMM-MBTA", {
             // Departure time
             if (this.config.showDepartTime) {
                 var depTimeCell = document.createElement("td");
-                if (config.timeFormat === 24) {
-                    if (isNaN(this.stationData[i].preDt) === true || preDt === null) {
-                        depTimeCell.innerHTML = "No depart";
-                    } else {
-                        depTimeCell.innerHTML = moment.unix(this.stationData[i].preDt).format("H:mm");
-                    }
+                if (!this.stationData[i].preDt) {
+                    depTimeCell.innerHTML = "No depart";
                 } else {
-                    if (isNaN(this.stationData[i].preDt) === true) {
-                        depTimeCell.innerHTML = "No depart";
+                    if (config.timeFormat === 24) {
+                        depTimeCell.innerHTML = moment.unix(this.stationData[i].preDt).format("H:mm");
                     } else {
                         depTimeCell.innerHTML = moment.unix(this.stationData[i].preDt).format("h:mm");
                     }
@@ -329,20 +317,14 @@ Module.register("MMM-MBTA", {
             var alertTable = document.createElement("table");
             alertTable.className = "small";
 
-            alertsArray = [];
+            let uniqueAlerts = new Set();
 
             for (let i = 0; i < this.stationData.length; i++) {
-                alertsArray.push(this.stationData[i].alert);
+                uniqueAlerts.add(this.stationData[i].alert);
             }
 
-            function onlyUnique(value, index, self) { 
-                return self.indexOf(value) === index;
-            }
-
-            let uniqueAlerts = [...new Set(alertsArray)];
-
-            for (let i = 0; i < uniqueAlerts.length; i++) {
-                var alertText = uniqueAlerts[i];
+            for (let alert of uniqueAlerts) {
+                var alertText = alert;
                 
                 var row = document.createElement("tr");
                 alertTable.appendChild(row);
@@ -418,8 +400,10 @@ Module.register("MMM-MBTA", {
         url += "&filter[stop]=" + stopId;
         url += "&include=stop,route,trip,alerts&sort=arrival_time";
 
+        // Gets (maxEntries + 10) schedules or all schedules up to 3 hours from now, whichever is lower
+        // Page and time limits necessary because otherwise "schedules" endpoint gets every single schedule
         if (!this.config.predictedTimes) {
-            url += "&page[limit]=25";
+            url += "&page[limit]=" + (maxEntries + 10) + '"';
             url += "&filter[min_time]=" + moment().format("HH:mm");
             url += "&filter[max_time]=" + moment().add(3, 'h').format("HH:mm");
         }
