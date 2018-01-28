@@ -20,7 +20,8 @@ Module.register("MMM-MBTA", {
         fadePoint: 0.25, // Start on 1/4th of the list.
         showFullName: false,
         colorIcons: false,
-        showAlerts: false
+        showAlerts: false,
+        hideEmptyAlerts: false
     },
     
     getStyles: function() {
@@ -325,16 +326,24 @@ Module.register("MMM-MBTA", {
         }
 
         // Alerts
-        if (this.config.showAlerts) {
-            var alertHeader = document.createElement("header");
-            alertHeader.className = "module-header alerts";
-            alertHeader.innerHTML = "Alerts";
-            wrapper.appendChild(alertHeader);
-                
-            var alertTable = document.createElement("table");
-            alertTable.className = "small";
+        let uniqueAlerts = new Set();
 
-            if (this.stationData.length === 0) {
+        for (let i = 0; i < this.stationData.length; i++) {
+            for (let j = 0; j < this.stationData[i].alerts.length; j++) {
+                uniqueAlerts.add(this.stationData[i].alerts[j]);
+            }
+        }
+
+        if (this.config.showAlerts) {
+            if (uniqueAlerts.size === 0 && this.config.hideEmptyAlerts === false) {
+                var alertHeader = document.createElement("header");
+                alertHeader.className = "module-header alerts";
+                alertHeader.innerHTML = "Alerts";
+                wrapper.appendChild(alertHeader);
+                    
+                var alertTable = document.createElement("table");
+                alertTable.className = "small";
+
                 var row = document.createElement("tr");
                 alertTable.appendChild(row);
                 alertTable.style.cssText = "width: inherit";
@@ -342,43 +351,32 @@ Module.register("MMM-MBTA", {
                 var alertCell = document.createElement("td");
                 alertCell.innerHTML = "No alerts";
                 alertCell.className = "light small";
-
                 row.appendChild(alertCell);
-            } else {
-                let uniqueAlerts = new Set();
 
-                for (let i = 0; i < this.stationData.length; i++) {
-                    for (let j = 0; j < this.stationData[i].alerts.length; j++) {
-                        uniqueAlerts.add(this.stationData[i].alerts[j]);
-                    }
-                }
+                wrapper.appendChild(alertTable);
+            } else if (uniqueAlerts.size > 0) {
+                var alertHeader = document.createElement("header");
+                alertHeader.className = "module-header alerts";
+                alertHeader.innerHTML = "Alerts";
+                wrapper.appendChild(alertHeader);
+                    
+                var alertTable = document.createElement("table");
+                alertTable.className = "small";
 
-                if (uniqueAlerts.size === 0) {
+                for (let alert of uniqueAlerts) {
+                    var alertText = alert;
+                    
                     var row = document.createElement("tr");
                     alertTable.appendChild(row);
                     alertTable.style.cssText = "width: inherit";
-
+                    
                     var alertCell = document.createElement("td");
-                    alertCell.innerHTML = "No alerts";
-                    alertCell.className = "light small";
-
+                    alertCell.innerHTML = alertText;
+                    alertCell.className = "light small alert";
                     row.appendChild(alertCell);
-                } else {
-                    for (let alert of uniqueAlerts) {
-                        var alertText = alert;
-                        
-                        var row = document.createElement("tr");
-                        alertTable.appendChild(row);
-                        alertTable.style.cssText = "width: inherit";
-                        
-                        var alertCell = document.createElement("td");
-                        alertCell.innerHTML = alertText;
-                        alertCell.className = "light small alert";
-                        row.appendChild(alertCell);
-                    }
                 }
+                wrapper.appendChild(alertTable);
             }
-            wrapper.appendChild(alertTable);
         }
         return wrapper;
     },
@@ -491,13 +489,13 @@ Module.register("MMM-MBTA", {
     fetchAlerts: function(data, updateDomAfter, pred, routeParse, tripParse, alertIds, rawData, promise) {
         var alertPromises = [];
         var self = this;
-        for (i = 0; i < alertIds.length; i++) {
+        alertIds.forEach(function(alert) {
             var alertPromise = $.Deferred();
             alertPromises.push(alertPromise);
 
-            var alertId = alertIds[i].id
+            var alertId = alert.id
 
-            var alertUrl = this.detailsUrl("alerts", alertId);
+            var alertUrl = self.detailsUrl("alerts", alertId);
             var alertRequest = new XMLHttpRequest();
             alertRequest.open("GET", alertUrl, true);
 
@@ -511,7 +509,7 @@ Module.register("MMM-MBTA", {
                 }
             };
             alertRequest.send();
-        }
+        });
 
         $.when(...alertPromises).then(function(...alertsParse) {
             self.processData(data, updateDomAfter, pred, routeParse, tripParse, alertsParse, rawData);
@@ -532,6 +530,7 @@ Module.register("MMM-MBTA", {
         this.stationData = [ ]; // clear all data.
         var rawData = [ ];
         var promises = [];
+
         if (data.data.length === 0) {
             this.loaded = true;
             this.updateDom();
@@ -540,7 +539,7 @@ Module.register("MMM-MBTA", {
                 routeId = data.data[pred].relationships.route.data.id;
                 tripId = data.data[pred].relationships.trip.data.id;
                 alertIds = data.data[pred].relationships.alerts.data;
-debugger
+
                 promises.push(this.fetchRoute(data, updateDomAfter, pred, routeId, tripId, alertIds, rawData));
             }
 

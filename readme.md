@@ -66,6 +66,7 @@ Option|Description
 `showFullName`|Display the full name instead of the short name. Due to the length the text, it is strongly recommended that the postition of this module is set to `top_bar`, `bottom_bar`, or any location where it can expand to the entire width when this is set to `true`.<br/>**Expected Value type:** `boolean`.
 `colorIcons`|Display the vehicle icons in their respective color.<br/>**Expected Value type:** `boolean`.
 `showAlerts`|Shows alerts near the specified station.<br/>**Expected Value type:** `boolean`.<br/>**WARNING**: Alerts are only properly shown when in a full-width position, such as `top_bar`, `middle_center` or `lower_third`.
+`hideEmptyAlerts`|Automatically hide the alerts section when there are no alerts.<br/>**Expected Value type:** `boolean`.
 
 More options will be added as this module becomes feature-rich.
 
