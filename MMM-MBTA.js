@@ -193,7 +193,7 @@ Module.register("MMM-MBTA", {
                         symbolCell.className += " commuter"
                     }
 
-                    if (isNaN(this.stationData[i].routeId) === false) {
+                    if ($.isNumeric(this.stationData[i].routeId)) {
                         symbolCell.className += " bus"
                     }
                 }
@@ -206,7 +206,7 @@ Module.register("MMM-MBTA", {
                 descCell.innerHTML = this.stationData[i].tripSign;
 
                 //Change routeId to public route name
-                if (isNaN(this.stationData[i].routeId) === false) {
+                if ($.isNumeric(this.stationData[i].routeId)) {
                     switch (this.stationData[i].routeId) {
                         case "741":
                             descCell.innerHTML += " | SL1";
