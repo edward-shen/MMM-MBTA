@@ -250,7 +250,7 @@ Module.register("MMM-MBTA", {
                         var seconds = preETATime % 60;
                         
                         if (this.config.showMinutesOnly) {
-                            if (isNaN(minutes) === true) {
+                            if (!minutes) {
                                 preETACell.innerHTML = "No ETA"
                             } else if (minutes === 0) {
                                 preETACell.innerHTML = "< 1 min";
@@ -523,7 +523,7 @@ Module.register("MMM-MBTA", {
         url += id;
         url += "?api_key=" + this.config.apikey;
 
-        return url
+        return url;
     },
 
     loopData: function(data, updateDomAfter) {
@@ -564,10 +564,9 @@ Module.register("MMM-MBTA", {
         } */
 
         alertsArray = [];
-        for (i = 0; i < alertsParse.length; i++) {
-            if (alertsParse[i].data) {
-                alert = alertsParse[i].data.attributes.header;
-                alertsArray.push(alert);
+        for (let alert of alertsParse) {
+            if (alert.data) {
+                alertsArray.push(alert.data.attributes.header);
             }
         };
         routeType = routeParse.data.attributes.type.toString();
