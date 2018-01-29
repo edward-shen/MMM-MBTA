@@ -94,5 +94,9 @@ This list was last updated on 2017-06-13.
 
 This list was last updated on 2017-06-13.
 
+## Thanks
+
+Special thanks to Andy Waplinger for adding lots of new functionality, and updating MMM-MBTA for APIv3 changes!
+
 [mm]: https://github.com/MichMich/MagicMirror
 [mbta dev portal]: http://realtime.mbta.com/Portal/
