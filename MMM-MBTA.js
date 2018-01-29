@@ -250,7 +250,7 @@ Module.register("MMM-MBTA", {
                         var seconds = preETATime % 60;
                         
                         if (this.config.showMinutesOnly) {
-                            if (!minutes) {
+                            if (minutes == null) {
                                 preETACell.innerHTML = "No ETA"
                             } else if (minutes === 0) {
                                 preETACell.innerHTML = "< 1 min";
