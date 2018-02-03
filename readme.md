@@ -71,17 +71,12 @@ Option|Description
 More options will be added as this module becomes feature-rich.
 
 ## Planned Features
-- [x] Options to display minutes and seconds vesus just seconds
-- [x] Options to display full description name
-- [x] Options to display arrival time
-- [x] Options to filter various modes of transportation
-- [x] Formatting that matches the default modules
 - [x] Alert tickers **Partial support**
-- [x] Fade effect
-- [x] Animations
-- [x] Cap on maximum amount of vehicles displayed
+- [ ] Filter displayed trips by direction (i.e. Northbound, Eastbound)
+- [ ] ETA countdown when vehicle is close to arriving
+- [ ] Time filter to display certain trips during specified times of the day
 
-This list was last updated on 2017-06-13.
+This list was last updated on 2018-01-29.
 
 ## Known Bugs
 - Gondola and funicular icons are unsupported!
@@ -99,4 +94,4 @@ This list was last updated on 2017-06-13.
 Special thanks to Andy Waplinger for adding lots of new functionality, and updating MMM-MBTA for APIv3 changes!
 
 [mm]: https://github.com/MichMich/MagicMirror
-[mbta dev portal]: http://realtime.mbta.com/Portal/
+[mbta dev portal]: https://api-v3.mbta.com/
