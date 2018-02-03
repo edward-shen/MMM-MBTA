@@ -533,7 +533,9 @@ Module.register("MMM-MBTA", {
 
         if (data.data.length === 0) {
             this.loaded = true;
-            this.updateDom();
+            if (updateDomAfter) {
+                this.updateDom();
+            }
         } else {
             for (let pred = 0; pred < data["data"].length; pred++) {
                 routeId = data.data[pred].relationships.route.data.id;
