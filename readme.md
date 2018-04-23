@@ -11,7 +11,7 @@ signing up. Note that it may take up to a day to approve your api key, according
 
 **DISCLAIMER**
 
-The times provided are from MBTA's API. As a result, the predicted values may be off. Please only use this as an estimation. i am not responsible for missed transportation and any consequences as a result of it. This is not a precise tool, nor have I claimed it to be. By using this module, you agree to never assume that this is a precise tool, and that I take no fault in any missed appointments, finals, etc.
+The times provided are from MBTA's API. As a result, the predicted values may be off. Please only use this as an estimation. I am not responsible for missed transportation and any consequences as a result of it. This is not a precise tool, nor have I claimed it to be. By using this module, you agree to never assume that this is a precise tool, and that I take no fault in any missed appointments, finals, etc.
 
 ## Installation
 
