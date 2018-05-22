@@ -225,7 +225,7 @@ Module.register("MMM-MBTA", {
                             descCell.innerHTML += " | CT3";
                             break;
                         default:
-                            descCell.innerHTML += " | " + routeId;
+                            descCell.innerHTML += " | " + this.stationData[i].routeId;
                     }
                 }
                 descCell.className = "align-left bright";
