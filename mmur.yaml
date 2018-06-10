@@ -1,0 +1,13 @@
+module: MMM-MBTA
+position: top-right
+header: "MBTA:"
+config:
+  apikey: your-api-key
+
+install:
+  message:
+    - "Please remember to get an api key from MBTA! You can go here to get one:"
+    -
+    - "https://api-v3.mbta.com/"
+    -
+    - Do know that it may take up to a day for MBTA to approve your key!
