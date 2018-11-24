@@ -251,7 +251,6 @@ Module.register("MMM-MBTA", {
                 if (this.config.showETATime) {
                     var preETACell = document.createElement("td");
                     var preETATime = this.stationData[i].preETA;
-                    
                     if (preETATime == null) {
                         preETACell.innerHTML = "No ETA"
                     } else if (preETATime < 10) { // Better to display single digits as "now"
