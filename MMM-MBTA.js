@@ -655,7 +655,7 @@ Module.register("MMM-MBTA", {
         //  Applys directional filter
         if (this.filterDirection.length > 0)
         {
-            this.stationData = this.stationData.filter(obj => (obj.directionId == this.filterDirection));
+            this.stationData = this.stationData.filter((obj) => obj.directionId === this.filterDirection);
         }
 
         // Remove trips beyond maxTime
