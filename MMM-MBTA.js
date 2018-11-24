@@ -1,7 +1,7 @@
 Module.register("MMM-MBTA", {
     defaults: {
         apikey: "",
-        updateInterval: 30, // In seconds
+        updateInterval: 10, // In seconds
         baseUrl: "https://api-v3.mbta.com/",
         stations: [ "Northeastern University" ],
         direction: [ ],
