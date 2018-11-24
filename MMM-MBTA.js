@@ -128,7 +128,7 @@ Module.register("MMM-MBTA", {
             row.appendChild(symbolCell);
 
             var descCell = document.createElement("td");
-            descCell.innerHTML = "Nothing coming soon";
+            descCell.innerHTML = "Nothing coming soon...";
             descCell.className = "align-left bright";
             row.appendChild(descCell);
         } else {
