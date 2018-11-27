@@ -68,7 +68,7 @@ Option|Description
 `showAlerts`|Shows alerts near the specified station.<br/>**Expected Value type:** `boolean`.<br/>**WARNING**: Alerts are only properly shown when in a full-width position, such as `top_bar`, `middle_center` or `lower_third`.
 `hideEmptyAlerts`|Automatically hide the alerts section when there are no alerts.<br/>**Expected Value type:** `boolean`.
 `direction`| Sets the default direction you care about.<br/>Example: `direction:  "Inbound" `.<br/>**Expected Value type:** `String`.
-`flipDirection`| Set to true, it will flip direction filter flag, ie: Inbound in the AM Outbound in PM<br/>**Expected Value type:** `boolean`.
+`flipDirection`| When set to `true`, MMM-MBTA will the flip the direction filter for incoming vehicles at the station, i.e. Inbound in the AM and Outbound in PM<br/>**Expected Value type:** `boolean`.
 `flipHour`| Specifies the hour to flip the direction, if `flipDirection` is equal to `true`. Default value is 12.**Expected Value type:** `int`.
 
 
