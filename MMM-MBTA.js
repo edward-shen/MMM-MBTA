@@ -23,7 +23,7 @@ Module.register("MMM-MBTA", {
         showAlerts: false,  // works but styling needs help
         hideEmptyAlerts: false,
         flipDirection: false,  // if set to true, it will flip direction filter flag,
-        flipHour: 12, 
+        flipHour: 12,
         directionFlipped: false
     },
 
@@ -74,7 +74,7 @@ Module.register("MMM-MBTA", {
         }
 
         this.filterDirection = [];
-        this.directionFlipped = false;
+        this.directionFlipped = false; 
     
         switch (this.config.direction) {
             case "Southbound":
@@ -212,10 +212,12 @@ Module.register("MMM-MBTA", {
                         break;
                 }
 
-
-
-                //descCell.innerHTML = this.stationData[i].tripSign + direction;
-                descCell.innerHTML = this.stationData[i].stopName + direction;
+                //TODO: logic to display stopName for Commuter Rail
+                // T
+                descCell.innerHTML = this.stationData[i].tripSign + direction;
+                // CR
+                //descCell.innerHTML = this.stationData[i].stopName + direction;
+                
                 //Change routeId to public route name
                 if ($.isNumeric(this.stationData[i].routeId)) {
                     switch (this.stationData[i].routeId) {
@@ -448,7 +450,7 @@ Module.register("MMM-MBTA", {
         url += "&filter[stop]=" + stopId;
         url += "&include=stop,route,trip,alerts&sort=arrival_time";
 
-        // Gets (maxEntries + 10) schedules or all schedules up to 3 hours from now, whichever is lower
+        // Gets (maxEntries + 10) schedules or all schedules up to 5 hours from now, whichever is lower
         // Page and time limits necessary because otherwise "schedules" endpoint gets every single schedule
         if (!this.config.predictedTimes) {
             url += "&page[limit]=" + (this.config.maxEntries + 10) + '"';
@@ -630,32 +632,27 @@ Module.register("MMM-MBTA", {
         // Sorts them according to ETA time
         this.stationData.sort((a,b) => (a.preETA - b.preETA));
 
-        if (this.config.flipDirection && this.config.direction.length > 0)
-        {
+        if (this.config.flipDirection && this.config.direction.length > 0) {
             //after flipTime, invert direction 
              var flipTime = moment().toDate();
              flipTime.setHours(this.config.flipHour);
              flipTime.setMinutes(0);
 
             if (moment().isSameOrAfter(flipTime)) {
-
-                    if (!this.directionFlipped)
-                    {
+                    if (!this.directionFlipped) {
                         this.filterDirection[0] = (1 - this.filterDirection[0]).toString();
                         this.directionFlipped = true;
                     }
             }
-            else
-            {
+            else {
                 this.directionFlipped = false;
             }
 
         }
 
         //  Applys directional filter
-        if (this.filterDirection.length > 0)
-        {
-            this.stationData = this.stationData.filter((obj) => obj.directionId === this.filterDirection);
+        if (this.filterDirection.length > 0) {
+            this.stationData = this.stationData.filter((obj) => obj.directionId = this.filterDirection);
         }
 
         // Remove trips beyond maxTime

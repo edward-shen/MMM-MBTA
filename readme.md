@@ -67,12 +67,17 @@ Option|Description
 `colorIcons`|Display the vehicle icons in their respective color.<br/>**Expected Value type:** `boolean`.
 `showAlerts`|Shows alerts near the specified station.<br/>**Expected Value type:** `boolean`.<br/>**WARNING**: Alerts are only properly shown when in a full-width position, such as `top_bar`, `middle_center` or `lower_third`.
 `hideEmptyAlerts`|Automatically hide the alerts section when there are no alerts.<br/>**Expected Value type:** `boolean`.
+`direction`| Sets the default direction you care about.<br/>Example: `direction:  "Inbound" `.<br/>**Expected Value type:** `String`.
+`flipDirection`| Set to true, it will flip direction filter flag, ie: Inbound in the AM Outbound in PM<br/>**Expected Value type:** `boolean`.
+`flipHour`| When set with flipDirection the time of day you want to flip direction to override 12 noon<br/>**Expected Value type:** `int`.
+
+
 
 More options will be added as this module becomes feature-rich.
 
 ## Planned Features
 - [x] Alert tickers **Partial support**
-- [ ] Filter displayed trips by direction (i.e. Northbound, Eastbound)
+- [x] Filter displayed trips by direction (i.e. Northbound, Eastbound)
 - [ ] ETA countdown when vehicle is close to arriving
 - [ ] Time filter to display certain trips during specified times of the day
 
@@ -87,7 +92,9 @@ This list was last updated on 2018-01-29.
 
   Unfortunately, that's due to an issue with MagicMirror² core. I may do a pull request in the future, but as of right now, this is (unfortunate) intented behavior.
 
-This list was last updated on 2017-06-13.
+- Using Scheduled times instead of predicted times.
+
+This list was last updated on 2018-11-26.
 
 ## Thanks
 
