@@ -69,7 +69,7 @@ Option|Description
 `hideEmptyAlerts`|Automatically hide the alerts section when there are no alerts.<br/>**Expected Value type:** `boolean`.
 `direction`| Sets the default direction you care about.<br/>Example: `direction:  "Inbound" `.<br/>**Expected Value type:** `String`.
 `flipDirection`| Set to true, it will flip direction filter flag, ie: Inbound in the AM Outbound in PM<br/>**Expected Value type:** `boolean`.
-`flipHour`| When set with flipDirection the time of day you want to flip direction to override 12 noon<br/>**Expected Value type:** `int`.
+`flipHour`| Specifies the hour to flip the direction, if `flipDirection` is equal to `true`. Default value is 12.**Expected Value type:** `int`.
 
 
 
