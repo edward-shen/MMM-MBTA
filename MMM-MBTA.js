@@ -5,7 +5,7 @@ Module.register("MMM-MBTA", {
         baseUrl: "https://api-v3.mbta.com/",
         stations: [ "Northeastern University" ],
         direction: [ ],
-        predictedTimes: true,
+        predictedTimes: true,  // false - scheduled times may not work yet
         doAnimation: false,
         animationSpeed: 1000,
         formatETA: true,
@@ -20,8 +20,11 @@ Module.register("MMM-MBTA", {
         fadePoint: 0.25, // Start on 1/4th of the list.
         showFullName: false,
         colorIcons: false,
-        showAlerts: false,
-        hideEmptyAlerts: false
+        showAlerts: false,  // works but styling needs help
+        hideEmptyAlerts: false,
+        flipDirection: false,  // if set to true, it will flip direction filter flag,
+        flipHour: 12,
+        directionFlipped: false
     },
 
     getStyles: function() {
@@ -71,7 +74,8 @@ Module.register("MMM-MBTA", {
         }
 
         this.filterDirection = [];
-
+        this.directionFlipped = false; 
+    
         switch (this.config.direction) {
             case "Southbound":
             case "Westbound":
@@ -124,7 +128,7 @@ Module.register("MMM-MBTA", {
             row.appendChild(symbolCell);
 
             var descCell = document.createElement("td");
-            descCell.innerHTML = "No vehicles are scheduled";
+            descCell.innerHTML = "Nothing coming soon...";
             descCell.className = "align-left bright";
             row.appendChild(descCell);
         } else {
@@ -198,8 +202,22 @@ Module.register("MMM-MBTA", {
 
                 // Description
                 var descCell = document.createElement("td");
-                descCell.innerHTML = this.stationData[i].tripSign;
+                var direction = "";
+                switch (this.stationData[i].directionId) {
+                    case "0":
+                        direction = " Out";
+                        break;
+                    case "1":
+                        direction = " In";
+                        break;
+                }
 
+                //TODO: logic to display stopName for Commuter Rail
+                // T
+                descCell.innerHTML = this.stationData[i].tripSign + direction;
+                // CR
+                //descCell.innerHTML = this.stationData[i].stopName + direction;
+                
                 //Change routeId to public route name
                 if ($.isNumeric(this.stationData[i].routeId)) {
                     switch (this.stationData[i].routeId) {
@@ -235,7 +253,6 @@ Module.register("MMM-MBTA", {
                 if (this.config.showETATime) {
                     var preETACell = document.createElement("td");
                     var preETATime = this.stationData[i].preETA;
-
                     if (preETATime == null) {
                         preETACell.innerHTML = "No ETA"
                     } else if (preETATime < 10) { // Better to display single digits as "now"
@@ -433,12 +450,12 @@ Module.register("MMM-MBTA", {
         url += "&filter[stop]=" + stopId;
         url += "&include=stop,route,trip,alerts&sort=arrival_time";
 
-        // Gets (maxEntries + 10) schedules or all schedules up to 3 hours from now, whichever is lower
+        // Gets (maxEntries + 10) schedules or all schedules up to 5 hours from now, whichever is lower
         // Page and time limits necessary because otherwise "schedules" endpoint gets every single schedule
         if (!this.config.predictedTimes) {
-            url += "&page[limit]=" + (maxEntries + 10) + '"';
+            url += "&page[limit]=" + (this.config.maxEntries + 10) + '"';
             url += "&filter[min_time]=" + moment().format("HH:mm");
-            url += "&filter[max_time]=" + moment().add(3, 'h').format("HH:mm");
+            url += "&filter[max_time]=" + moment().add(5, 'h').format("HH:mm");
         }
         return url;
     },
@@ -580,6 +597,7 @@ Module.register("MMM-MBTA", {
         preDt = parseInt(moment(data.data[pred].attributes.departure_time).format("X"));
         preArr = parseInt(moment(data.data[pred].attributes.arrival_time).format("X"));
         preETA = moment(data.data[pred].attributes.arrival_time).diff(moment(), 'seconds') - 30; //Better safe than sorry?
+        stopName = data.data[pred].relationships.stop.data.id;
 
         rawData.push({
             routeType: routeType,
@@ -589,7 +607,8 @@ Module.register("MMM-MBTA", {
             alerts: alertsArray,
             preDt: preDt,
             preArr: preArr,
-            preETA: preETA
+            preETA: preETA,
+            stopName: stopName
         });
     },
 
@@ -612,6 +631,29 @@ Module.register("MMM-MBTA", {
 
         // Sorts them according to ETA time
         this.stationData.sort((a,b) => (a.preETA - b.preETA));
+
+        if (this.config.flipDirection && this.config.direction.length > 0) {
+            //after flipTime, invert direction 
+             var flipTime = moment().toDate();
+             flipTime.setHours(this.config.flipHour);
+             flipTime.setMinutes(0);
+
+            if (moment().isSameOrAfter(flipTime)) {
+                    if (!this.directionFlipped) {
+                        this.filterDirection[0] = (1 - this.filterDirection[0]).toString();
+                        this.directionFlipped = true;
+                    }
+            }
+            else {
+                this.directionFlipped = false;
+            }
+
+        }
+
+        //  Applys directional filter
+        if (this.filterDirection.length > 0) {
+            this.stationData = this.stationData.filter((obj) => obj.directionId = this.filterDirection);
+        }
 
         // Remove trips beyond maxTime
         if (this.config.maxTime !== 0) {
