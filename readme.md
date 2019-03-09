@@ -69,7 +69,9 @@ Option|Description
 `hideEmptyAlerts`|Automatically hide the alerts section when there are no alerts.<br/>**Expected Value type:** `boolean`.
 `direction`| Sets the default direction you care about.<br/>Example: `direction:  "Inbound" `.<br/>**Expected Value type:** `String`.
 `flipDirection`| When set to `true`, MMM-MBTA will the flip the direction filter for incoming vehicles at the station, i.e. Inbound in the AM and Outbound in PM<br/>**Expected Value type:** `boolean`.
-`flipHour`| Specifies the hour to flip the direction, if `flipDirection` is equal to `true`. Default value is 12.**Expected Value type:** `int`.
+`flipHour`| Specifies the hour to flip the direction, if `flipDirection` is equal to `true`. Default value is 12.<br/>**Expected Value type:** `int`.
+`noETAToBack` | Favor entries with an ETA, hiding entries without ETAs if possible.<br/>**Expected Value type:** `boolean`.
+`showDirection` | Show "In" or "Out".<br/>**Expected Value type:** `false`.
 
 
 

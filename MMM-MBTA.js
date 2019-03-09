@@ -4,7 +4,7 @@ Module.register("MMM-MBTA", {
         updateInterval: 10, // In seconds
         baseUrl: "https://api-v3.mbta.com/",
         stations: [ "Northeastern University" ],
-        direction: [ ],
+        direction: "",
         predictedTimes: true,  // false - scheduled times may not work yet
         doAnimation: false,
         animationSpeed: 1000,
@@ -24,7 +24,9 @@ Module.register("MMM-MBTA", {
         hideEmptyAlerts: false,
         flipDirection: false,  // if set to true, it will flip direction filter flag,
         flipHour: 12,
-        directionFlipped: false
+        directionFlipped: false,
+        noETAToBack: false,
+        showDirection: false,
     },
 
     getStyles: function() {
@@ -41,6 +43,7 @@ Module.register("MMM-MBTA", {
 
     start: function() {
         // API abuse prevention
+        this.config.fadePoint = Math.max(this.config.fadePoint, 0);
         this.config.updateInterval = Math.max(this.config.updateInterval, 10);
 
         this.loaded = false;
@@ -48,9 +51,27 @@ Module.register("MMM-MBTA", {
             .then(res => res.json())
             .then(stationDict => this.config.stations.map(friendlyName => stationDict[friendlyName]));
 
-        this.stationData = []; // Clear station data
+        this.stationData = [];
         this.filterModes = [];
+        this.setTransportationModeFilter();
+        this.filterDirection = ["0", "1"];
+        this.directionFlipped = false; 
+    
+        switch (this.config.direction) {
+            case "Southbound":
+            case "Westbound":
+            case "Outbound":
+                this.filterDirection = ["0"];
+                break;
+            case "Northbound":
+            case "Eastbound":
+            case "Inbound":
+                this.filterDirection = ["1"];
+                break;
+        }
+    },
 
+    setTransportationModeFilter: function() {
         if (this.config.showOnly.includes("Subway")) {
             // Light rail and subway are synonymous in Boston
             this.filterModes.push("0");
@@ -65,53 +86,31 @@ Module.register("MMM-MBTA", {
         if (this.config.showOnly.includes("Ferry")) {
             this.filterModes.push("4");
         }
-        if (this.config.showOnly.includes("Cable car")) {
-            this.filterModes.push("5");
-        }
-
-        this.filterDirection = [];
-        this.directionFlipped = false; 
-    
-        switch (this.config.direction) {
-            case "Southbound":
-            case "Westbound":
-            case "Outbound":
-                this.filterDirection.push("0");
-                break;
-            case "Northbound":
-            case "Eastbound":
-            case "Inbound":
-                this.filterDirection.push("1");
-                break;
-        }
     },
 
     getDom: function() {
         var wrapper = document.createElement("div");
 
-        if (!this.loaded) {
-            wrapper.innerHTML += "LOADING";
+        // Check if an API key is in the config
+        if (!this.config.apikey) {
+            if (wrapper.innerHTML !== "") {
+                wrapper.innerHTML += "<br/>";
+            }
+            wrapper.innerHTML += "Please set a MBTA api key! MMM-MBTA won't work otherwise!";
             wrapper.className = "dimmed light small";
             return wrapper;
         }
 
-        // Check if an API key is in the config
-        if (this.config.apikey === "") {
-            if (wrapper.innerHTML !== "") {
-                wrapper.innerHTML += "<br/>";
-            }
-            wrapper.innerHTML += "Please set a MBTA api key! This module won't load otherwise!";
+        if (!this.loaded) {
+            wrapper.innerHTML += "LOADING";
             wrapper.className = "dimmed light small";
-            return wrapper; // Do not continue updating
         }
-
-        /*-----------------------------------------*/
 
         var table = document.createElement("table");
         table.className = "small";
 
         // When there are no predictions
-        if (this.stationData.length === 0) {
+        if (!this.stationData.length) {
             var row = document.createElement("tr");
             table.appendChild(row);
 
@@ -129,78 +128,16 @@ Module.register("MMM-MBTA", {
             descCell.className = "align-left bright";
             row.appendChild(descCell);
         } else {
-            for (let i = 0; i < this.stationData.length; i++) {
+            for (let station of this.stationData) {
                 var row = document.createElement("tr");
                 table.appendChild(row);
-
-                // Icon
-                var symbolCell = document.createElement("td");
-                switch (this.stationData[i].routeType) {
-                    case "0": // Tram/Streetcar/Light Rail case. We'll use the same icon.
-                    case "1":
-                        symbolCell.className = "fa fa-subway";
-                        break;
-                    case "2":
-                        symbolCell.className = "fa fa-train";
-                        break;
-                    case "3":
-                        symbolCell.className = "fa fa-bus";
-                        break;
-                    case "4":
-                        symbolCell.className = "fa fa-ship";
-                        break;
-                    case "5": // Suppose to be a cable car but there's no FA icon, so we'll just use the train icon
-                        symbolCell.className = "fa fa-train";
-                        break;
-                    case "6": // Gondola case
-                        // There shouldn't be a gondola in Boston.
-                    case "7": // Funicular case
-                        // There shouldn't be a funicular in Boston.
-                    default:
-                        symbolCell.className = "fa fa-question-circle-o";
-                }
-
-                // Color Icons
-                if (this.config.colorIcons) {
-                    switch (this.stationData[i].routeId) {
-                        case "Red":
-                        case "Mattapan":
-                            symbolCell.className += " red";
-                            break;
-                        case "Blue":
-                            symbolCell.className += " blue";
-                            break;
-                        case "Orange":
-                            symbolCell.className += " orange";
-                            break;
-                        case "Green-B":
-                        case "Green-C":
-                        case "Green-D":
-                        case "Green-E":
-                            symbolCell.className += " green";
-                            break;
-                        case "Boat-F1":
-                        case "Boat-F4":
-                            symbolCell.className += " green";
-                            break;
-                    }
-
-                    if (this.stationData[i].routeId.includes("CR-")) {
-                        symbolCell.className += " commuter"
-                    }
-
-                    if ($.isNumeric(this.stationData[i].routeId)) {
-                        symbolCell.className += " bus"
-                    }
-                }
-
-                symbolCell.style.cssText = "padding-right: 10px";
+                let symbolCell = this.getIconDom(station.routeType, station.routeId);
                 row.appendChild(symbolCell);
 
                 // Description
                 var descCell = document.createElement("td");
                 var direction = "";
-                switch (this.stationData[i].directionId) {
+                switch (station.directionId) {
                     case "0":
                         direction = " Out";
                         break;
@@ -211,13 +148,13 @@ Module.register("MMM-MBTA", {
 
                 //TODO: logic to display stopName for Commuter Rail
                 // T
-                descCell.innerHTML = this.stationData[i].tripSign + direction;
+                descCell.innerHTML = station.tripSign + direction;
                 // CR
                 //descCell.innerHTML = this.stationData[i].stopName + direction;
                 
                 //Change routeId to public route name
-                if ($.isNumeric(this.stationData[i].routeId)) {
-                    switch (this.stationData[i].routeId) {
+                if ($.isNumeric(station.routeId)) {
+                    switch (station.routeId) {
                         case "741":
                             descCell.innerHTML += " | SL1";
                             break;
@@ -240,7 +177,7 @@ Module.register("MMM-MBTA", {
                             descCell.innerHTML += " | CT3";
                             break;
                         default:
-                            descCell.innerHTML += " | " + this.stationData[i].routeId;
+                            descCell.innerHTML += " | " + station.routeId;
                     }
                 }
                 descCell.className = "align-left bright";
@@ -249,8 +186,8 @@ Module.register("MMM-MBTA", {
                 // ETA
                 if (this.config.showETATime) {
                     var preETACell = document.createElement("td");
-                    var preETATime = this.stationData[i].preETA;
-                    if (preETATime == null) {
+                    var preETATime = station.preETA;
+                    if (!preETATime) {
                         preETACell.innerHTML = "No ETA"
                     } else if (preETATime < 10) { // Better to display single digits as "now"
                         preETACell.innerHTML = "Now";
@@ -259,7 +196,7 @@ Module.register("MMM-MBTA", {
                         var seconds = preETATime % 60;
 
                         if (this.config.showMinutesOnly) {
-                            if (minutes == null) {
+                            if (!minutes) {
                                 preETACell.innerHTML = "No ETA"
                             } else if (minutes === 0) {
                                 preETACell.innerHTML = "< 1 min";
@@ -285,13 +222,13 @@ Module.register("MMM-MBTA", {
                 // Arrival time
                 if (this.config.showArrivalTime) {
                     var arrTimeCell = document.createElement("td");
-                    if (!this.stationData[i].preArr) {
+                    if (!station.preArr) {
                         arrTimeCell.innerHTML = "No arrival";
                     } else {
                         if (config.timeFormat === 24) {
-                            arrTimeCell.innerHTML = moment.unix(this.stationData[i].preArr).format("H:mm");
+                            arrTimeCell.innerHTML = moment.unix(station.preArr).format("H:mm");
                         } else {
-                            arrTimeCell.innerHTML = moment.unix(this.stationData[i].preArr).format("h:mm");
+                            arrTimeCell.innerHTML = moment.unix(station.preArr).format("h:mm");
                         }
                     }
                     row.appendChild(arrTimeCell);
@@ -300,28 +237,27 @@ Module.register("MMM-MBTA", {
                 // Departure time
                 if (this.config.showDepartTime) {
                     var depTimeCell = document.createElement("td");
-                    if (!this.stationData[i].preDt) {
+                    if (!station.preDt) {
                         depTimeCell.innerHTML = "No depart";
                     } else {
                         if (config.timeFormat === 24) {
-                            depTimeCell.innerHTML = moment.unix(this.stationData[i].preDt).format("H:mm");
+                            depTimeCell.innerHTML = moment.unix(station.preDt).format("H:mm");
                         } else {
-                            depTimeCell.innerHTML = moment.unix(this.stationData[i].preDt).format("h:mm");
+                            depTimeCell.innerHTML = moment.unix(station.preDt).format("h:mm");
                         }
                     }
                     row.appendChild(depTimeCell);
                 }
+            }
 
+            var startingPoint = this.stationData.length * this.config.fadePoint;
+            var steps = this.stationData.length - startingPoint;
+            for (let i = 0; i < this.stationData.length; i++) {
                 // Stolen from default modules to ensure style is identical. Thanks MichMich <3
                 if (this.config.fade && this.config.fadePoint < 1) {
-                    if (this.config.fadePoint < 0) {
-                        this.config.fadePoint = 0;
-                    }
-                    var startingPoint = this.stationData.length * this.config.fadePoint;
-                    var steps = this.stationData.length - startingPoint;
                     if (i >= startingPoint) {
                         var currentStep = i - startingPoint;
-                        row.style.opacity = 1 - (1 / steps * currentStep);
+                        table.rows[i].style.opacity = 1 - (1 / steps * currentStep);
                     }
                 }
             }
@@ -390,16 +326,78 @@ Module.register("MMM-MBTA", {
         return wrapper;
     },
 
-    notificationReceived: function(notification, payload, sender) {
+    // Returns the DOM for the icon beside the incoming transportation.
+    getIconDom: function(routeType, routeId) {
+        // Icon
+        var symbolCell = document.createElement("td");
+
+        // https://api-v3.mbta.com/docs/swagger/index.html#/Route/ApiWeb_RouteController_show
+        switch (routeType) {
+            case "0": // Light Rail
+            case "1": // Heavy Rail
+                symbolCell.className = "fa fa-subway";
+                break;
+            case "2": // Commuter Rail
+                symbolCell.className = "fa fa-train";
+                break;
+            case "3": // Bus
+                symbolCell.className = "fa fa-bus";
+                break;
+            case "4": // Ferry
+                symbolCell.className = "fa fa-ship";
+                break;
+            default:
+                symbolCell.className = "fa fa-question-circle-o";
+        }
+
+        // Color Icons
+        if (this.config.colorIcons) {
+            switch (routeId) {
+                case "Red":
+                case "Mattapan":
+                    symbolCell.className += " red";
+                    break;
+                case "Blue":
+                    symbolCell.className += " blue";
+                    break;
+                case "Orange":
+                    symbolCell.className += " orange";
+                    break;
+                case "Green-B":
+                case "Green-C":
+                case "Green-D":
+                case "Green-E":
+                    symbolCell.className += " green";
+                    break;
+                case "Boat-F1":
+                case "Boat-F4":
+                    symbolCell.className += " green";
+                    break;
+            }
+
+            if (routeId.includes("CR-")) {
+                symbolCell.className += " commuter"
+            }
+
+            if ($.isNumeric(routeId)) {
+                symbolCell.className += " bus"
+            }
+        }
+
+        symbolCell.style.cssText = "padding-right: 10px";
+
+        return symbolCell;
+    },
+
+    notificationReceived: function(notification) {
         if (notification === "DOM_OBJECTS_CREATED") {
             Log.log(this.name + " received a system notification: " + notification);
             this.fetchData(true);
-            Log.log("updating dom");
         }
     },
 
     scheduleUpdate: function(amt) {
-        var interval = (amt !== undefined) ? amt : this.config.updateInterval;
+        var interval = amt || this.config.updateInterval;
 
         var self = this;
         setTimeout(function() {
@@ -457,7 +455,7 @@ Module.register("MMM-MBTA", {
         return url;
     },
 
-    fetchRoute: function(data, updateDomAfter, pred, routeId, tripId, alertIds, rawData) {
+    fetchRoute: function(data, pred, routeId, tripId, alertIds, rawData) {
         var deferredPromise = $.Deferred();
 
         var routeUrl = this.getEndpointURL("routes",routeId);
@@ -468,9 +466,9 @@ Module.register("MMM-MBTA", {
         routeRequest.onreadystatechange = function() {
             if (this.readyState === 4) {
                 if (this.status === 200) {
-                    self.fetchTrip(data, updateDomAfter, pred, JSON.parse(this.response), tripId, alertIds, rawData, deferredPromise)
+                    self.fetchTrip(data, pred, JSON.parse(this.response), tripId, alertIds, rawData, deferredPromise)
                 } else if (this.status === 404) {
-                    self.fetchTrip(data, updateDomAfter, pred, "Unavailable", tripId, alertIds, rawData, deferredPromise);
+                    self.fetchTrip(data, pred, "Unavailable", tripId, alertIds, rawData, deferredPromise);
                 }
             }
         };
@@ -479,8 +477,8 @@ Module.register("MMM-MBTA", {
         return deferredPromise;
     },
 
-    fetchTrip: function(data, updateDomAfter, pred, routeParse, tripId, alertId, rawData, promise) {
-        var tripUrl = this.getEndpointURL("trips",tripId);
+    fetchTrip: function(data, pred, routeParse, tripId, alertIds, rawData, promise) {
+        var tripUrl = this.getEndpointURL("trips", tripId);
         var tripRequest = new XMLHttpRequest();
         tripRequest.open("GET", tripUrl, true);
 
@@ -488,16 +486,16 @@ Module.register("MMM-MBTA", {
         tripRequest.onreadystatechange = function() {
             if (this.readyState === 4) {
                 if (this.status === 200) {
-                    self.fetchAlerts(data, updateDomAfter, pred, routeParse, JSON.parse(this.response), alertIds, rawData, promise);
+                    self.fetchAlerts(data, pred, routeParse, JSON.parse(this.response), alertIds, rawData, promise);
                 } else if (this.status === 404) {
-                    self.fetchAlerts(data, updateDomAfter, pred, routeParse, "Unavailable", alertIds, rawData, promise);
+                    self.fetchAlerts(data, pred, routeParse, "Unavailable", alertIds, rawData, promise);
                 }
             }
         };
         tripRequest.send();
     },
 
-    fetchAlerts: function(data, updateDomAfter, pred, routeParse, tripParse, alertIds, rawData, promise) {
+    fetchAlerts: function(data, pred, routeParse, tripParse, alertIds, rawData, promise) {
         var alertPromises = [];
         var self = this;
         alertIds.forEach(function(alert) {
@@ -523,23 +521,18 @@ Module.register("MMM-MBTA", {
         });
 
         $.when(...alertPromises).then(function(...alertsParse) {
-            self.processData(data, updateDomAfter, pred, routeParse, tripParse, alertsParse, rawData);
+            self.processData(data, pred, routeParse, tripParse, alertsParse, rawData);
             promise.resolve();
         });
     },
 
-    getEndpointURL: function(detail,id) {
-        var url = this.config.baseUrl;
-        url += detail + '/';
-        url += id;
-        url += "?api_key=" + this.config.apikey;
-
-        return url;
+    getEndpointURL: function(detail, id) {
+        return this.config.baseUrl + detail + '/' + id + "?api_key=" + this.config.apikey;
     },
 
     loopData: function(data, updateDomAfter) {
-        this.stationData = [ ]; // clear all data.
-        var rawData = [ ];
+        this.stationData = []; // clear all data.
+        var rawData = [];
         var promises = [];
 
         if (data.data.length === 0) {
@@ -553,18 +546,18 @@ Module.register("MMM-MBTA", {
                 tripId = data.data[pred].relationships.trip.data.id;
                 alertIds = data.data[pred].relationships.alerts.data;
 
-                promises.push(this.fetchRoute(data, updateDomAfter, pred, routeId, tripId, alertIds, rawData));
+                promises.push(this.fetchRoute(data, pred, routeId, tripId, alertIds, rawData));
             }
 
             var that = this;
             $.when(...promises).then(function() {
-                that.cleanData(data, rawData, updateDomAfter);
+                that.cleanData(rawData, updateDomAfter);
             });
         }
     },
 
     // updateDomAfter: immediately call updateDom() if true
-    processData: function(data, updateDomAfter, pred, routeParse, tripParse, alertsParse, rawData) {
+    processData: function(data, pred, routeParse, tripParse, alertsParse, rawData) {
         /* Each element in this array is an entry on our displayed table:
         {"routeType": string,
          "routeId": string,
@@ -576,27 +569,25 @@ Module.register("MMM-MBTA", {
          "preETA": int
         } */
 
-        alertsArray = [];
+        let alertsArray = [];
         for (let alert of alertsParse) {
             if (alert.data) {
                 alertsArray.push(alert.data.attributes.header);
             }
-        };
-        routeType = routeParse.data.attributes.type.toString();
-        routeId = routeParse.data.id;
-        if (tripParse.data) {
-            tripSign = tripParse.data.attributes.headsign;
-            directionId = tripParse.data.attributes.direction_id.toString();
-        } else {
-            tripSign = "Name unavailable"
-            directionId = "Direction unavailable"
         }
-        preDt = parseInt(moment(data.data[pred].attributes.departure_time).format("X"));
-        preArr = parseInt(moment(data.data[pred].attributes.arrival_time).format("X"));
-        preETA = moment(data.data[pred].attributes.arrival_time).diff(moment(), 'seconds') - 30; //Better safe than sorry?
-        stopName = data.data[pred].relationships.stop.data.id;
 
-        rawData.push({
+        let routeType = routeParse.data.attributes.type.toString();
+        let routeId = routeParse.data.id;
+
+        let tripSign = tripParse.data.attributes.headsign || "Name Unavailable";
+        let directionId = tripParse.data.attributes.direction_id.toString() || "Direction Unavailable";
+
+        let preDt = parseInt(moment(data.data[pred].attributes.departure_time).format("X"));
+        let preArr = parseInt(moment(data.data[pred].attributes.arrival_time).format("X"));
+        let preETA = moment(data.data[pred].attributes.arrival_time || data.data[pred].attributes.departure_time).diff(moment(), 'seconds') - 30; //Better safe than sorry?
+        let stopName = data.data[pred].relationships.stop.data.id;
+
+        let parsedData = {
             routeType: routeType,
             routeId: routeId,
             tripSign: tripSign,
@@ -606,50 +597,52 @@ Module.register("MMM-MBTA", {
             preArr: preArr,
             preETA: preETA,
             stopName: stopName
-        });
+        };
+
+        rawData.push(parsedData);
     },
 
-    cleanData: function(data, rawData, updateDomAfter) {
-        // Filters out items
-        // This simply doesn't run when the param is empty.
-        var self = this;
-        for (let i = 0; i < this.filterModes.length; i++) {
-            var temp = rawData.filter(obj => (obj.routeType === self.filterModes[i]));
-
-            // For some reason a for-each loop won't work.
-            for (let x = 0; x < temp.length; x++) {
-                this.stationData.push(temp[x]);
-            }
-        }
-
-        if (this.filterModes.length === 0) {
+    cleanData: function(rawData, updateDomAfter) {
+        if (!this.filterModes.length) {
             this.stationData = rawData;
+        } else {
+            this.stationData = rawData.filter(obj => this.filterModes.includes(obj.routeType));
         }
 
         // Sorts them according to ETA time
-        this.stationData.sort((a,b) => (a.preETA - b.preETA));
+        this.stationData.sort((a, b) => {
+            if (this.config.noETAToBack) {
+                if (!a.preETA) {
+                    return 1;
+                }
+                
+                if (!b.preETA) {
+                    return -1;
+                }
+            }
+            return a.preETA - b.preETA;
+        });
 
         if (this.config.flipDirection && this.config.direction.length > 0) {
-            //after flipTime, invert direction 
-             var flipTime = moment().toDate();
-             flipTime.setHours(this.config.flipHour);
-             flipTime.setMinutes(0);
+            // after flipTime, invert direction 
+            var flipTime = moment().toDate();
+            flipTime.setHours(this.config.flipHour);
+            flipTime.setMinutes(0);
 
             if (moment().isSameOrAfter(flipTime)) {
-                    if (!this.directionFlipped) {
-                        this.filterDirection[0] = (1 - this.filterDirection[0]).toString();
-                        this.directionFlipped = true;
-                    }
-            }
-            else {
+                if (!this.directionFlipped) {
+                    this.filterDirection[0] = (1 - this.filterDirection[0]).toString();
+                    this.directionFlipped = true;
+                }
+            } else {
                 this.directionFlipped = false;
             }
-
         }
 
-        //  Applies directional filter
+        // Applies directional filter
         if (this.filterDirection.length > 0) {
-            this.stationData = this.stationData.filter((obj) => obj.directionId === this.filterDirection);
+            console.log(this.stationData);
+            this.stationData = this.stationData.filter(obj => this.filterDirection.includes(obj.directionId));
         }
 
         // Remove trips beyond maxTime
