@@ -41,13 +41,9 @@ Module.register("MMM-MBTA", {
 
     start: function() {
         // API abuse prevention
-        if (this.config.updateInterval < 10) {
-            this.config.updateInterval = 10;
-        }
+        this.config.updateInterval = Math.max(this.config.updateInterval, 10);
 
         this.loaded = false;
-        var directionDict = {"Southbound": "0", "Northbound": "1", "Westbound": "0", "Eastbound": "1", "Outbound": "0", "Inbound": "1"};
-
         this.getStations = fetch('modules/MMM-MBTA/stations-formatted.json')
             .then(res => res.json())
             .then(stationDict => this.config.stations.map(friendlyName => stationDict[friendlyName]));
@@ -96,6 +92,7 @@ Module.register("MMM-MBTA", {
         if (!this.loaded) {
             wrapper.innerHTML += "LOADING";
             wrapper.className = "dimmed light small";
+            return wrapper;
         }
 
         // Check if an API key is in the config
@@ -463,7 +460,7 @@ Module.register("MMM-MBTA", {
     fetchRoute: function(data, updateDomAfter, pred, routeId, tripId, alertIds, rawData) {
         var deferredPromise = $.Deferred();
 
-        var routeUrl = this.detailsUrl("routes",routeId);
+        var routeUrl = this.getEndpointURL("routes",routeId);
         var routeRequest = new XMLHttpRequest();
         routeRequest.open("GET", routeUrl, true);
 
@@ -483,7 +480,7 @@ Module.register("MMM-MBTA", {
     },
 
     fetchTrip: function(data, updateDomAfter, pred, routeParse, tripId, alertId, rawData, promise) {
-        var tripUrl = this.detailsUrl("trips",tripId);
+        var tripUrl = this.getEndpointURL("trips",tripId);
         var tripRequest = new XMLHttpRequest();
         tripRequest.open("GET", tripUrl, true);
 
@@ -509,7 +506,7 @@ Module.register("MMM-MBTA", {
 
             var alertId = alert.id
 
-            var alertUrl = self.detailsUrl("alerts", alertId);
+            var alertUrl = self.getEndpointURL("alerts", alertId);
             var alertRequest = new XMLHttpRequest();
             alertRequest.open("GET", alertUrl, true);
 
@@ -531,7 +528,7 @@ Module.register("MMM-MBTA", {
         });
     },
 
-    detailsUrl: function(detail,id) {
+    getEndpointURL: function(detail,id) {
         var url = this.config.baseUrl;
         url += detail + '/';
         url += id;
@@ -566,7 +563,7 @@ Module.register("MMM-MBTA", {
         }
     },
 
-    // updateDomAfter: immediatelly call updateDom() if true
+    // updateDomAfter: immediately call updateDom() if true
     processData: function(data, updateDomAfter, pred, routeParse, tripParse, alertsParse, rawData) {
         /* Each element in this array is an entry on our displayed table:
         {"routeType": string,
@@ -650,9 +647,9 @@ Module.register("MMM-MBTA", {
 
         }
 
-        //  Applys directional filter
+        //  Applies directional filter
         if (this.filterDirection.length > 0) {
-            this.stationData = this.stationData.filter((obj) => obj.directionId = this.filterDirection);
+            this.stationData = this.stationData.filter((obj) => obj.directionId === this.filterDirection);
         }
 
         // Remove trips beyond maxTime
