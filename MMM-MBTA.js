@@ -641,7 +641,6 @@ Module.register("MMM-MBTA", {
 
         // Applies directional filter
         if (this.filterDirection.length > 0) {
-            console.log(this.stationData);
             this.stationData = this.stationData.filter(obj => this.filterDirection.includes(obj.directionId));
         }
 
