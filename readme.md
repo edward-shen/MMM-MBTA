@@ -73,9 +73,16 @@ Option|Description
 `noETAToBack` | Favor entries with an ETA, hiding entries without ETAs if possible.<br/>**Expected Value type:** `boolean`.
 `showDirection` | Show "In" or "Out".<br/>**Expected Value type:** `false`.
 
-
-
 More options will be added as this module becomes feature-rich.
+
+If your station name does not appear in `stations-formatted.json`, you can search for your station [here](https://www.mbta.com/stops/subway). Then you can simply add the last part of the URL to the `stations-formatted.json` in the same manner as the remainder of links. For example, if you wanted to add a new stop, say, HelloWorld, you could do the following:
+ - Search https://www.mbta.com/stops/subway for HelloWorld.
+ - Click on your desired station.
+ - See that the URL reads https://www.mbta.com/stops/place-helloworld
+ - Add a line `"hello world": "place-helloworld",` to `stations-formatted.json`.
+ - Then edit `stations` in your config file to be `"stations": ["place-helloworld"],`
+
+Thanks to @nakulbende for the tip!
 
 ## Planned Features
 - [x] Alert tickers **Partial support**
