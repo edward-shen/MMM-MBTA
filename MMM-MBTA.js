@@ -312,9 +312,8 @@ Module.register("MMM-MBTA", {
                     var alertText = alert;
 
                     var row = document.createElement("div");
-					row.className = "alert-wrapper";
+                    row.className = "alert-wrapper";
                     alertTable.appendChild(row);
-                    // alertTable.style.cssText = "width: inherit";
 
                     var alertCell = document.createElement("div");
                     alertCell.innerHTML = alertText;
