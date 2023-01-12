@@ -37,10 +37,13 @@
 }
 
 .MMM-MBTA .alerts-wrapper {
-  /* start the alert off screen */
-  padding-left: 100%;
   display: flex;
   white-space: nowrap;
+}
+
+.MMM-MBTA .alerts-wrapper.animate {
+  /* start the alert off screen */
+  padding-left: 100%;
   transform: translateX(0%);
   animation: alert 17s linear infinite;
 }

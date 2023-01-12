@@ -280,26 +280,10 @@ Module.register("MMM-MBTA", {
         }
 
         if (this.config.showAlerts) {
-            if (uniqueAlerts.size === 0 && this.config.hideEmptyAlerts === false) {
-                var alertHeader = document.createElement("header");
-                alertHeader.className = "module-header alerts";
-                alertHeader.innerHTML = "Alerts";
-                wrapper.appendChild(alertHeader);
+            var showEmptyAlerts = uniqueAlerts.size === 0 && this.config.hideEmptyAlerts === false;
+            var hasAlerts = uniqueAlerts.size > 0;
 
-                var alertTable = document.createElement("table");
-                alertTable.className = "small";
-
-                var row = document.createElement("tr");
-                alertTable.appendChild(row);
-                alertTable.style.cssText = "width: inherit";
-
-                var alertCell = document.createElement("td");
-                alertCell.innerHTML = "No alerts";
-                alertCell.className = "light small";
-                row.appendChild(alertCell);
-
-                wrapper.appendChild(alertTable);
-            } else if (uniqueAlerts.size > 0) {
+            if (showEmptyAlerts || hasAlerts) {
                 var alertHeader = document.createElement("header");
                 alertHeader.className = "module-header alerts-header";
                 alertHeader.innerHTML = "Alerts";
@@ -308,20 +292,33 @@ Module.register("MMM-MBTA", {
                 var alertsDiv = document.createElement("div");
                 alertsDiv.className = "alerts small";
 
-				var alertsWrapper = document.createElement("div");
-				alertsWrapper.className = "alerts-wrapper";
-				alertsDiv.appendChild(alertsWrapper);
-
-                for (let alert of uniqueAlerts) {
-                    var alertText = alert;
+                if (showEmptyAlerts) {
+                    var alertsWrapper = document.createElement("div");
+                    alertsWrapper.className = "alerts-wrapper";
+                    alertsDiv.appendChild(alertsWrapper);
 
                     var alertDiv = document.createElement("div");
-                    alertDiv.innerHTML = alertText;
+                    alertDiv.innerHTML = "No alerts";
                     alertDiv.className = "light small alert";
                     alertsWrapper.appendChild(alertDiv);
                 }
+
+                if (hasAlerts) {
+                    var alertsWrapper = document.createElement("div");
+                    alertsWrapper.className = "alerts-wrapper animate";
+                    alertsDiv.appendChild(alertsWrapper);
+
+                    for (let alert of uniqueAlerts) {
+                        var alertDiv = document.createElement("div");
+                        alertDiv.innerHTML = alert;
+                        alertDiv.className = "light small alert";
+                        alertsWrapper.appendChild(alertDiv);
+                    }
+                }
+
                 wrapper.appendChild(alertsDiv);
             }
+
         }
         return wrapper;
     },
