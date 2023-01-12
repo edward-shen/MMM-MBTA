@@ -301,21 +301,22 @@ Module.register("MMM-MBTA", {
                 wrapper.appendChild(alertTable);
             } else if (uniqueAlerts.size > 0) {
                 var alertHeader = document.createElement("header");
-                alertHeader.className = "module-header alerts";
+                alertHeader.className = "module-header alerts-header";
                 alertHeader.innerHTML = "Alerts";
                 wrapper.appendChild(alertHeader);
 
-                var alertTable = document.createElement("table");
-                alertTable.className = "small";
+                var alertTable = document.createElement("div");
+                alertTable.className = "alerts small";
 
                 for (let alert of uniqueAlerts) {
                     var alertText = alert;
 
-                    var row = document.createElement("tr");
+                    var row = document.createElement("div");
+					row.className = "alert-wrapper";
                     alertTable.appendChild(row);
-                    alertTable.style.cssText = "width: inherit";
+                    // alertTable.style.cssText = "width: inherit";
 
-                    var alertCell = document.createElement("td");
+                    var alertCell = document.createElement("div");
                     alertCell.innerHTML = alertText;
                     alertCell.className = "light small alert";
                     row.appendChild(alertCell);
