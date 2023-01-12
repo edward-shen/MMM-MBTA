@@ -305,22 +305,22 @@ Module.register("MMM-MBTA", {
                 alertHeader.innerHTML = "Alerts";
                 wrapper.appendChild(alertHeader);
 
-                var alertTable = document.createElement("div");
-                alertTable.className = "alerts small";
+                var alertsDiv = document.createElement("div");
+                alertsDiv.className = "alerts small";
+
+				var alertsWrapper = document.createElement("div");
+				alertsWrapper.className = "alerts-wrapper";
+				alertsDiv.appendChild(alertsWrapper);
 
                 for (let alert of uniqueAlerts) {
                     var alertText = alert;
 
-                    var row = document.createElement("div");
-                    row.className = "alert-wrapper";
-                    alertTable.appendChild(row);
-
-                    var alertCell = document.createElement("div");
-                    alertCell.innerHTML = alertText;
-                    alertCell.className = "light small alert";
-                    row.appendChild(alertCell);
+                    var alertDiv = document.createElement("div");
+                    alertDiv.innerHTML = alertText;
+                    alertDiv.className = "light small alert";
+                    alertsWrapper.appendChild(alertDiv);
                 }
-                wrapper.appendChild(alertTable);
+                wrapper.appendChild(alertsDiv);
             }
         }
         return wrapper;

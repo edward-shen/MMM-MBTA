@@ -33,17 +33,13 @@
 .MMM-MBTA .alerts {
   overflow: hidden;
   max-width: 300px;
-}
-
-.MMM-MBTA .alert-wrapper {
   display: flex;
 }
 
-.MMM-MBTA .alert {
-  position: relative;
+.MMM-MBTA .alerts-wrapper {
   /* start the alert off screen */
   padding-left: 100%;
-  text-align: left;
+  display: flex;
   white-space: nowrap;
   transform: translateX(0%);
   animation: alert 17s linear infinite;
