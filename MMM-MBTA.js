@@ -304,8 +304,10 @@ Module.register("MMM-MBTA", {
                 }
 
                 if (hasAlerts) {
+                    var charCount = Array.from(uniqueAlerts).join(' ').length;
                     var alertsWrapper = document.createElement("div");
                     alertsWrapper.className = "alerts-wrapper animate";
+                    alertsWrapper.style.setProperty("--char-count", charCount);
                     alertsDiv.appendChild(alertsWrapper);
 
                     for (let alert of uniqueAlerts) {

@@ -45,7 +45,7 @@
   /* start the alert off screen */
   padding-left: 100%;
   transform: translateX(0%);
-  animation: alert 17s linear infinite;
+  animation: alert calc(0.075s * var(--char-count, 100)) linear infinite;
 }
 
 /* Move it (define the animation) */
