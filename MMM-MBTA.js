@@ -47,7 +47,18 @@ Module.register("MMM-MBTA", {
         this.config.updateInterval = Math.max(this.config.updateInterval, 10);
 
         this.loaded = false;
-        this.getStations = this.getStopIdMap();
+        this.getStations = fetch(url)
+                    .then(res => res.json())
+                    .then(data => {
+                        // Map attributes.name to id
+                        const stopMap = {};
+                        for (const stop of data.data) {
+                            if (stop.attributes && stop.attributes.name && stop.id) {
+                                stopMap[stop.attributes.name] = stop.id;
+                            }
+                        }
+                        return stopMap;
+                    });
 
         this.stationData = [];
         this.filterModes = [];
@@ -66,29 +77,6 @@ Module.register("MMM-MBTA", {
             case "Inbound":
                 this.filterDirection = ["1"];
                 break;
-        }
-    },
-
-    getStopIdMap: function() {    
-        // Fetch all stops with location_type == 1
-        const url = "https://api-v3.mbta.com/stops?filter[location_type]=1&page[limit]=10000";
-        try {
-            return fetch(url)
-                    .then(res => res.json())
-                    .then(data => {
-                        // Map attributes.name to id
-                        const stopMap = {};
-                        for (const stop of data.data) {
-                            if (stop.attributes && stop.attributes.name && stop.id) {
-                                stopMap[stop.attributes.name] = stop.id;
-                            }
-                        }
-                        return stopMap;
-                    });
-
-        } catch (e) {
-            console.error(`Error fetching stop ID map url ${url}:`, e);
-            return {};
         }
     },
 
