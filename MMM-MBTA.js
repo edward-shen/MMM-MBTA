@@ -47,6 +47,7 @@ Module.register("MMM-MBTA", {
         this.config.updateInterval = Math.max(this.config.updateInterval, 120);
 
         this.loaded = false;
+        const url = "https://api-v3.mbta.com/stops?filter[location_type]=1&page[limit]=10000";
         this.getStations = fetch(url)
                     .then(res => res.json())
                     .then(data => {
