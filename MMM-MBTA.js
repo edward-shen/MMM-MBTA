@@ -1,7 +1,7 @@
 Module.register("MMM-MBTA", {
     defaults: {
         apikey: "",
-        updateInterval: 10, // In seconds
+        updateInterval: 120, // In seconds
         baseUrl: "https://api-v3.mbta.com/",
         stations: [ "Northeastern University" ],
         direction: "",
@@ -44,7 +44,7 @@ Module.register("MMM-MBTA", {
     start: function() {
         // API abuse prevention
         this.config.fadePoint = Math.max(this.config.fadePoint, 0);
-        this.config.updateInterval = Math.max(this.config.updateInterval, 10);
+        this.config.updateInterval = Math.max(this.config.updateInterval, 120);
 
         this.loaded = false;
         this.getStations = fetch(url)
@@ -58,7 +58,8 @@ Module.register("MMM-MBTA", {
                             }
                         }
                         return stopMap;
-                    });
+                    })
+                    .then(stationDict => this.config.stations.map(friendlyName => stationDict[friendlyName]));
 
         this.stationData = [];
         this.filterModes = [];
