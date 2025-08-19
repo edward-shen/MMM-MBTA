@@ -50,7 +50,7 @@ Option|Description
 `apikey`|Api key given by the MBTA.<br/>**Expected Value type:** `String`.
 `updateInterval`|Time between updates, in seconds. To protect API abuse, this module automatically limits this value to a minimum of `10`.<br/>**Expected Value type:** `int`.
 `baseUrl`|The base url of the MBTA api. You shouldn't change this unless the MBTA moved the api to the new location, and the update hasn't been reflected in this module.<br/>**Expected Value type:** `String`.
-`stations`|This is an array of stations that you wish to display. Currently, only one max station is allowed. For a list of station names, please refer to `stations-formatted.json`. Make sure to use the common name!<br/>Example: `stations: [ "Airport" ]`.<br/>**Expected Value type:** `[String, String, ...]`.
+`stations`|This is an array of stations that you wish to display. Currently, only one max station is allowed. Find station names at https://www.mbta.com/stops/subway. Make sure to use the common name!<br/>Example: `stations: [ "Airport" ]`.<br/>**Expected Value type:** `[String, String, ...]`.
 `predictedTimes`|Use MBTA predicted times or scheduled times. Default is predicted times (true).<br/>**Expected Value type:** `boolean`.
 `doAnimation`|Whether or not to do an animation when updating.<br/>**Expected Value type:** `boolean`.
 `animationSpeed`|How long the update animation lasts. <br/>**Expected Value type:** `int`.
@@ -75,15 +75,6 @@ Option|Description
 `showDirection` | Show "In" or "Out".<br/>**Expected Value type:** `false`.
 
 More options will be added as this module becomes feature-rich.
-
-If your station name does not appear in `stations-formatted.json`, you can search for your station [here](https://www.mbta.com/stops/subway). Then you can simply add the last part of the URL to the `stations-formatted.json` in the same manner as the remainder of links. For example, if you wanted to add a new stop, say, HelloWorld, you could do the following:
- - Search https://www.mbta.com/stops/subway for HelloWorld.
- - Click on your desired station.
- - See that the URL reads https://www.mbta.com/stops/place-helloworld
- - Add a line `"hello world": "place-helloworld",` to `stations-formatted.json`.
- - Then edit `stations` in your config file to be `"stations": ["place-helloworld"],`
-
-Thanks to @nakulbende for the tip!
 
 ## Planned Features
 - [x] Alert tickers **Partial support**
