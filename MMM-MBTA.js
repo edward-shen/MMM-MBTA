@@ -47,7 +47,7 @@ Module.register("MMM-MBTA", {
         this.config.updateInterval = Math.max(this.config.updateInterval, 120);
 
         this.loaded = false;
-        const url = "https://api-v3.mbta.com/stops?filter[location_type]=1&page[limit]=10000";
+        const url = this.formUrl();
         this.getStations = fetch(url)
                     .then(res => res.json())
                     .then(data => {
@@ -444,6 +444,13 @@ Module.register("MMM-MBTA", {
     // Gets API URL based off user settings
     formUrl: function(stopId) {
         var url = this.config.baseUrl;
+
+        if (stopId === undefined || stopId === null) {
+            url += "stops"
+            url += "?api_key=" + this.config.apikey
+            url += "&filter[location_type]=1&page[limit]=10000";
+            return url;
+        }
 
         if (this.config.predictedTimes) {
             url += "predictions";
