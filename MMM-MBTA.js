@@ -455,10 +455,10 @@ Module.register("MMM-MBTA", {
 
         if (this.config.predictedTimes) {
             url += "predictions";
+            includes += ["alerts"];
             
         } else {
             url += "schedules";
-            includes += ["alerts"];
         }
 
         url += "?api_key=" + this.config.apikey;
