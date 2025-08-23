@@ -455,7 +455,7 @@ Module.register("MMM-MBTA", {
 
         if (this.config.predictedTimes) {
             url += "predictions";
-            includes += ["alerts"];
+            includes.push("alerts");
             
         } else {
             url += "schedules";
