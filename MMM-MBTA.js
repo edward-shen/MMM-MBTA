@@ -444,6 +444,7 @@ Module.register("MMM-MBTA", {
     // Gets API URL based off user settings
     formUrl: function(stopId) {
         var url = this.config.baseUrl;
+        var includes = ["stop", "route", "trip"];
 
         if (stopId === undefined || stopId === null) {
             url += "stops"
@@ -454,13 +455,15 @@ Module.register("MMM-MBTA", {
 
         if (this.config.predictedTimes) {
             url += "predictions";
+            
         } else {
             url += "schedules";
+            includes += ["alerts"];
         }
 
         url += "?api_key=" + this.config.apikey;
         url += "&filter[stop]=" + stopId;
-        url += "&include=stop,route,trip,alerts&sort=arrival_time";
+        url += `&include=${includes.join(',')}&sort=arrival_time`;
 
         // Gets (maxEntries + 10) schedules or all schedules up to 5 hours from now, whichever is lower
         // Page and time limits necessary because otherwise "schedules" endpoint gets every single schedule
@@ -468,7 +471,7 @@ Module.register("MMM-MBTA", {
             url += "&page[limit]=" + (this.config.maxEntries + 10) + '"';
             url += "&filter[min_time]=" + moment().format("HH:mm");
             url += "&filter[max_time]=" + moment().add(5, 'h').format("HH:mm");
-        }
+        } 
         return url;
     },
 
