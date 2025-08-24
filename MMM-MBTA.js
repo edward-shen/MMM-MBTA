@@ -582,7 +582,7 @@ Module.register("MMM-MBTA", {
             for (let pred = 0; pred < data["data"].length; pred++) {
                 routeId = data.data[pred].relationships.route.data.id;
                 tripId = data.data[pred].relationships.trip.data.id;
-                alertIds =  data.data[pred].relationships.alerts ? data.data[pred].relationships.alerts.data : [];
+                alertIds = data.data[pred].relationships.alerts ? data.data[pred].relationships.alerts.data : [];
 
                 promises.push(this.fetchRoute(data, pred, routeId, tripId, alertIds, rawData));
             }
