@@ -432,7 +432,25 @@ Module.register("MMM-MBTA", {
                 MBTARequest.onreadystatechange = function() {
                     if (this.readyState === 4) {
                         if (this.status === 200) {
-                            self.loopData(JSON.parse(this.response), updateDomAfter);
+                          var response = JSON.parse(this.response);
+                          if (response.data && response.data.length > 0) {
+                              self.loopData(response, updateDomAfter);
+                          } else if (self.config.predictedTimes) {
+                             // Fallback to schedules if predicted times is empty
+			      // Predictions endpoint is a little flaky
+		              self.config.predictedTimes = false;
+		              var scheduleUrl = self.formUrl(stations[stop]);
+                              var scheduleRequest = new XMLHttpRequest();
+                              scheduleRequest.open("GET", scheduleUrl, true);
+                              scheduleRequest.onreadystatechange = function() {
+                                  if (this.readyState === 4 && this.status === 200) {
+                                      var scheduleResponse = JSON.parse(this.response);
+                                      self.loopData(scheduleResponse, updateDomAfter);
+                                  }
+                              };
+                              scheduleRequest.send();
+                              self.config.predictedTimes = true;
+                          }
                         }
                     }
                 };
@@ -564,7 +582,7 @@ Module.register("MMM-MBTA", {
             for (let pred = 0; pred < data["data"].length; pred++) {
                 routeId = data.data[pred].relationships.route.data.id;
                 tripId = data.data[pred].relationships.trip.data.id;
-                alertIds = data.data[pred].relationships.alerts.data;
+                alertIds =  data.data[pred].relationships.alerts ? data.data[pred].relationships.alerts.data : [];
 
                 promises.push(this.fetchRoute(data, pred, routeId, tripId, alertIds, rawData));
             }
