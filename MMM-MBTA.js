@@ -488,7 +488,7 @@ Module.register("MMM-MBTA", {
             url += "&page[limit]=" + (this.config.maxEntries + 10) + '"';
             url += "&filter[min_time]=" + moment().format("HH:mm");
             url += "&filter[max_time]=" + moment().add(5, 'h').format("HH:mm");
-        } 
+        }
         return url;
     },
 
