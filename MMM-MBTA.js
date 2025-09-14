@@ -47,7 +47,7 @@ Module.register("MMM-MBTA", {
         this.config.updateInterval = Math.max(this.config.updateInterval, 120);
 
         this.loaded = false;
-        const url = "https://api-v3.mbta.com/stops?filter[location_type]=1&page[limit]=10000";
+        const url = this.formUrl();
         this.getStations = fetch(url)
                     .then(res => res.json())
                     .then(data => {
@@ -432,7 +432,25 @@ Module.register("MMM-MBTA", {
                 MBTARequest.onreadystatechange = function() {
                     if (this.readyState === 4) {
                         if (this.status === 200) {
-                            self.loopData(JSON.parse(this.response), updateDomAfter);
+                            var response = JSON.parse(this.response);
+                            if (response.data && response.data.length > 0) {
+                                self.loopData(response, updateDomAfter);
+                            } else if (self.config.predictedTimes) {
+                                // Fallback to schedules if predicted times is empty
+                                // Predictions endpoint is a little flaky
+                                self.config.predictedTimes = false;
+                                var scheduleUrl = self.formUrl(stations[stop]);
+                                var scheduleRequest = new XMLHttpRequest();
+                                scheduleRequest.open("GET", scheduleUrl, true);
+                                scheduleRequest.onreadystatechange = function() {
+                                    if (this.readyState === 4 && this.status === 200) {
+                                        var scheduleResponse = JSON.parse(this.response);
+                                        self.loopData(scheduleResponse, updateDomAfter);
+                                    }
+                                };
+                                scheduleRequest.send();
+                                self.config.predictedTimes = true;
+                            }
                         }
                     }
                 };
@@ -444,16 +462,25 @@ Module.register("MMM-MBTA", {
     // Gets API URL based off user settings
     formUrl: function(stopId) {
         var url = this.config.baseUrl;
+        var includes = ["stop", "route", "trip"];
+
+        if (stopId === undefined || stopId === null) {
+            url += "stops"
+            url += "?api_key=" + this.config.apikey
+            url += "&filter[location_type]=1&page[limit]=10000";
+            return url;
+        }
 
         if (this.config.predictedTimes) {
             url += "predictions";
+            includes.push("alerts");
         } else {
             url += "schedules";
         }
 
         url += "?api_key=" + this.config.apikey;
         url += "&filter[stop]=" + stopId;
-        url += "&include=stop,route,trip,alerts&sort=arrival_time";
+        url += `&include=${includes.join(',')}&sort=arrival_time`;
 
         // Gets (maxEntries + 10) schedules or all schedules up to 5 hours from now, whichever is lower
         // Page and time limits necessary because otherwise "schedules" endpoint gets every single schedule
@@ -554,7 +581,7 @@ Module.register("MMM-MBTA", {
             for (let pred = 0; pred < data["data"].length; pred++) {
                 routeId = data.data[pred].relationships.route.data.id;
                 tripId = data.data[pred].relationships.trip.data.id;
-                alertIds = data.data[pred].relationships.alerts.data;
+                alertIds = data.data[pred].relationships.alerts?.data ?? [];
 
                 promises.push(this.fetchRoute(data, pred, routeId, tripId, alertIds, rawData));
             }
